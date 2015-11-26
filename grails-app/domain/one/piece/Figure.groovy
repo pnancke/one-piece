@@ -18,23 +18,24 @@ class Figure {
     FigGender figGender
     int figAge
     String figOrigin
-    MangaEpisode firstOccurMangaEpisode
-    AnimeEpisode firstOccurAnimeEpisode
+    static hasMany = [mangaEpisodeAppearance:MangaEpisode, animeEpisodeAppearance:AnimeEpisode]
     byte[] figPicture
     DevilFruit devilFruit
     Marine figMarine
     Pirate figPirate
-    static belongsTo = [Marine, Pirate]
+    static belongsTo = [marine:Marine, pirate:Pirate]
 
     static constraints = {
         figRace nullable: true
         figAge nullable: true
         figOrigin nullable: true
-        firstOccurAnimeEpisode nullable: true
-        firstOccurMangaEpisode nullable: true
+        mangaEpisodeAppearance nullable: true
+        animeEpisodeAppearance nullable: true
         figPicture nullable: true
         figMarine nullable: true
         figPirate nullable: true
         devilFruit nullable: true
+        marine nullable: true
+        pirate nullable: true
     }
 }
