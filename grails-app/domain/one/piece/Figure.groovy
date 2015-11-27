@@ -18,12 +18,12 @@ class Figure {
     FigGender figGender
     int figAge
     String figOrigin
-    static hasMany = [mangaEpisodeAppearance:MangaEpisode, animeEpisodeAppearance:AnimeEpisode]
+    static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     byte[] figPicture
     DevilFruit devilFruit
     Marine figMarine
     Pirate figPirate
-    static belongsTo = [marine:Marine, pirate:Pirate]
+    static belongsTo = [marine: Marine, pirate: Pirate]
 
     static constraints = {
         figRace nullable: true
