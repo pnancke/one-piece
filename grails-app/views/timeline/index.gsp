@@ -6,14 +6,19 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script>
         $(function () {
-            $("#figures-search").autocomplete({
+            $("#figuresSearch").autocomplete({
                 source: '${g.createLink(controller: "figure", action: "autocomplete")}',
                 minLength: 2,
                 select: function (event, ui) {
-                    console.log('selected: ' + event + ui)
+                    console.log('selected: ' + event + ui);
                 }
             });
         });
+    </script>
+    <script>
+        function clearFields() {
+            document.getElementById('figuresSearch').value = '';
+        }
     </script>
     <title>timeline</title>
 </head>
@@ -26,15 +31,9 @@
 </g:if>
 <br/>
 
-<div class="filters">
-    <g:form action="index">
-
-        <p><label for="name">Name:</label>
-            <g:textField name="name" value="${filters?.name}" id="figures-search"/>
-
-            <g:submitButton name="search" value="Search"/></p>
-
-    </g:form>
+<div>
+    <input type="text" id="figuresSearch" name="name" placeholder="Search"/>
+    <input type="reset" value="Clear" onclick="clearFields();"/>
 </div>
 
 <div id="figureList">
