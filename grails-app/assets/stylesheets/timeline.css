@@ -1,0 +1,15 @@
+table.figures td {
+    margin: 12px 120px 12px 12px;
+    padding: 0 10em 0 0;
+}
+
+table.figures {
+    border-collapse: separate;
+}
+
+#removeFigureButton {
+    margin-left: 2em;
+    padding: 0;
+    border: none;
+    background: none;
+}
