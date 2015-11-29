@@ -11,14 +11,17 @@
                 source: '${g.createLink(controller: "figure", action: "autocomplete")}',
                 minLength: 2,
                 select: function (event, ui) {
-                    console.log('selected: ' + ui.item.label);
-                    addFigure(ui.item.label)
+                    var input = ui.item.label;
+                    console.log('selected: ' + input);
+                    addFigure(input);
                 }
             });
         });
+
         Element.prototype.remove = function () {
             this.parentElement.removeChild(this);
         };
+
         NodeList.prototype.remove = HTMLCollection.prototype.remove = function () {
             for (var i = this.length - 1; i >= 0; i--) {
                 if (this[i] && this[i].parentElement) {
@@ -26,18 +29,50 @@
                 }
             }
         };
-
         function addFigure(input) {
-            $('#figureList').append("<div class='figure-" + new Date().getTime().toString() + "'>" + input +
-                    ' <input type="reset" id="removeFigureButton" value="&#10006" onclick="removeDiv(this)"/></div></br>');
-        }
-        function removeDiv(button) {
-            $(button).closest('div').remove();
+            var figureHiddenFieldSelector = $('#figure_array_hidden');
+            var figures = figureHiddenFieldSelector.val();
+            var newDiv;
+            if (figures == undefined || figures == "") {
+                figureHiddenFieldSelector.val(input);
+                newDiv = document.createElement('div');
+                $('#figureList').append(newDiv);
+                newDiv.innerHTML = '<input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                        + input;
+            } else {
+                var figureArray = figureHiddenFieldSelector.val().split(",");
+                if ($.inArray(input, figureArray) == -1) {
+                    console.log(input + " // " + figureArray);
+                    figureArray.push(input);
+                    figureHiddenFieldSelector.val(figureArray);
+                    newDiv = document.createElement('div');
+                    $('#figureList').append(newDiv);
+                    newDiv.innerHTML = '<input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                            + input;
+                } else {
+                    alert(input + ' is already in the list!');
+                }
+            }
+
         }
 
-        function clearFields() {
+        function removeFigure(button) {
+            var figureHiddenFieldSelector = $('#figure_array_hidden')
+            var toRemoveDiv = $(button).closest('div')[0];
+            var toRemoveFigure = toRemoveDiv.innerText;
+            console.log("remove figure: " + toRemoveFigure);
+            var figureArray = figureHiddenFieldSelector.val().split(",");
+            figureArray = jQuery.grep(figureArray, function (value) {
+                return value != toRemoveFigure;
+            });
+            figureHiddenFieldSelector.val(figureArray);
+            toRemoveDiv.remove();
+        }
+
+        function clearFieldFigureSearchField() {
             document.getElementById('figuresSearch').value = '';
         }
+
     </script>
     <title>timeline</title>
 </head>
@@ -48,12 +83,12 @@
     <div class="message">${flash.message}</div>
 </g:if>
 <br/>
-<table class="figures" style="padding: 12px 120px 12px 12px">
+<table class="figures">
     <tr>
         <td valign="top">
             <div>
                 <input type="text" id="figuresSearch" name="name" placeholder="Search"/>
-                <input type="reset" value="Clear" onclick="clearFields();"/>
+                <input type="reset" value="Clear" onclick="clearFieldFigureSearchField();"/>
             </div>
         </td>
         <td valign="top">
@@ -63,8 +98,7 @@
     </tr>
 </table>
 
-
-
+<input type="hidden" value="" id="figure_array_hidden" title=""/>
 <br/>
 
 </body>
