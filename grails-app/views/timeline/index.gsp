@@ -18,17 +18,7 @@
             });
         });
 
-        Element.prototype.remove = function () {
-            this.parentElement.removeChild(this);
-        };
 
-        NodeList.prototype.remove = HTMLCollection.prototype.remove = function () {
-            for (var i = this.length - 1; i >= 0; i--) {
-                if (this[i] && this[i].parentElement) {
-                    this[i].parentElement.removeChild(this[i]);
-                }
-            }
-        };
         function addFigure(input) {
             var figureHiddenFieldSelector = $('#figure_array_hidden');
             var figures = figureHiddenFieldSelector.val();
@@ -57,16 +47,18 @@
         }
 
         function removeFigure(button) {
-            var figureHiddenFieldSelector = $('#figure_array_hidden')
-            var toRemoveDiv = $(button).closest('div')[0];
-            var toRemoveFigure = toRemoveDiv.innerText;
+            var figureHiddenFieldSelector = $('#figure_array_hidden');
+            var toRemoveDiv = $(button).closest('div');
+            var toRemoveFigure = toRemoveDiv[0].innerText;
             console.log("remove figure: " + toRemoveFigure);
             var figureArray = figureHiddenFieldSelector.val().split(",");
             figureArray = jQuery.grep(figureArray, function (value) {
                 return value != toRemoveFigure;
             });
             figureHiddenFieldSelector.val(figureArray);
-            toRemoveDiv.remove();
+            toRemoveDiv.fadeOut(250, function () {
+                $(this).remove();
+            });
         }
 
         function clearFieldFigureSearchField() {
