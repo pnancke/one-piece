@@ -9,7 +9,5 @@ class CrawlerController {
 
     def index() {
         crawlerService.serviceMethod();
-        System.out.print("yhu")
-        render "a"
     }
 }
