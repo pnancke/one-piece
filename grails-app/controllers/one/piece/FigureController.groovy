@@ -21,4 +21,14 @@ class FigureController {
         response.setContentType("application/json")
         render resultJson
     }
+
+    def search(String figureName) {
+        log.info("search: " + figureName)
+        def figure = Figure.findByFigNameIlike(figureName)
+        if (figure == null) {
+            render ""
+        } else {
+            render figure.figName
+        }
+    }
 }

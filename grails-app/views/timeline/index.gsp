@@ -14,10 +14,11 @@
                     var input = ui.item.label;
                     console.log('selected: ' + input);
                     addFigure(input);
+                    clearFigureSearchField();
+                    return false;
                 }
             });
         });
-
 
         function addFigure(input) {
             var figureHiddenFieldSelector = $('#figure_array_hidden');
@@ -32,7 +33,6 @@
             } else {
                 var figureArray = figureHiddenFieldSelector.val().split(",");
                 if ($.inArray(input, figureArray) == -1) {
-                    console.log(input + " // " + figureArray);
                     figureArray.push(input);
                     figureHiddenFieldSelector.val(figureArray);
                     newDiv = document.createElement('div');
@@ -43,7 +43,6 @@
                     alert(input + ' is already in the list!');
                 }
             }
-
         }
 
         function removeFigure(button) {
@@ -61,8 +60,23 @@
             });
         }
 
-        function clearFieldFigureSearchField() {
+        function clearFigureSearchField() {
             document.getElementById('figuresSearch').value = '';
+        }
+
+        function searchFigure(figureName) {
+            $.ajax({
+                url: "${g.createLink(controller: "figure", action: "search", params:"foo")}?figureName=" + figureName,
+                success: function (result) {
+                    if (result == "") {
+                        alert("Figure " + figureName + " doesn't exist!");
+                    } else {
+                        addFigure(figureName);
+                        clearFigureSearchField();
+                        return false
+                    }
+                }
+            });
         }
 
     </script>
@@ -77,10 +91,22 @@
 <br/>
 <table class="figures">
     <tr>
+        <td>
+            Search for figures to add them.
+        </td>
+
+        <td>
+            Selected figures:
+        </td>
+    </tr>
+    <tr>
         <td valign="top">
             <div>
-                <input type="text" id="figuresSearch" name="name" placeholder="Search"/>
-                <input type="reset" value="Clear" onclick="clearFieldFigureSearchField();"/>
+                <form name="searchFigures" action="javascript:void(0);">
+                    <input type="text" id="figuresSearch" name="figureSearch" placeholder="Search"/>
+                    <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
+                           value="Add"/>
+                </form>
             </div>
         </td>
         <td valign="top">

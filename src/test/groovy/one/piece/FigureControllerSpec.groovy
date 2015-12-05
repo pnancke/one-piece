@@ -10,18 +10,19 @@ import spock.lang.Specification
 @TestFor(FigureController)
 @Mock(Figure)
 class FigureControllerSpec extends Specification {
-    public static final String FIG_1 = "Fig1-093605"
-    public static final String FIG_1_SHORT = "Fig1"
-    public static final String FIG_1_SHORT_CASE = "fig1"
-    public static final String FIG_2 = "Fig2-093608"
-    public static final String FIG_1_2_SHORT = "fig"
-    public static final String FIG_NOT_EXISTS = "Fig3-093945"
+    public static final String FIG_1_NAME = "Fig1-093605"
+    public static final String FIG_1_NAME_LOWERCASE = "fig1-093605"
+    public static final String FIG_1_NAME_SHORT = "Fig1"
+    public static final String FIG_1_NAME_SHORT_LOWERCASE = "fig1"
+    public static final String FIG_2_NAME = "Fig2-093608"
+    public static final String FIG_NAME_SHORT = "fig"
+    public static final String FIG_NAME_NOT_EXISTS = "Fig3-093945"
     public static final String FOO = "foo"
 
 
     def setup() {
-        new Figure(figName: FIG_1, figGender: "Male").save(failOnError: true)
-        new Figure(figName: FIG_2, figGender: "Female").save(failOnError: true)
+        new Figure(figName: FIG_1_NAME, figGender: "Male").save(failOnError: true)
+        new Figure(figName: FIG_2_NAME, figGender: "Female").save(failOnError: true)
     }
 
     def cleanup() {
@@ -29,7 +30,7 @@ class FigureControllerSpec extends Specification {
 
     void "test autocompletion with no match"() {
         when:
-        controller.autocomplete(FIG_NOT_EXISTS)
+        controller.autocomplete(FIG_NAME_NOT_EXISTS)
 
         then:
         response.text == "[]"
@@ -37,26 +38,26 @@ class FigureControllerSpec extends Specification {
 
     void "test autocompletion with one match"() {
         when:
-        controller.autocomplete(FIG_1_SHORT)
+        controller.autocomplete(FIG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1 + "\"]"
+        response.text == "[\"" + FIG_1_NAME + "\"]"
     }
 
     void "test autocompletion ignores case"() {
         when:
-        controller.autocomplete(FIG_1_SHORT_CASE)
+        controller.autocomplete(FIG_1_NAME_SHORT_LOWERCASE)
 
         then:
-        response.text == "[\"" + FIG_1 + "\"]"
+        response.text == "[\"" + FIG_1_NAME + "\"]"
     }
 
     void "test autocompletion with two matches"() {
         when:
-        controller.autocomplete(FIG_1_2_SHORT)
+        controller.autocomplete(FIG_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1 + "\",\"" + FIG_2 + "\"]"
+        response.text == "[\"" + FIG_1_NAME + "\",\"" + FIG_2_NAME + "\"]"
     }
 
     void "test autocompletion maximum 10 suggestions"() {
@@ -78,5 +79,33 @@ class FigureControllerSpec extends Specification {
 
         then:
         response.getJson().size() == 10
+    }
+
+    void "test search figure exists"() {
+        new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
+
+        when:
+        controller.search(FIG_1_NAME)
+
+        then:
+        response.text == FIG_1_NAME
+    }
+
+    void "test search ignores case"() {
+        new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
+
+        when:
+        controller.search(FIG_1_NAME_LOWERCASE)
+
+        then:
+        response.text == FIG_1_NAME
+    }
+
+    void "test search empty response when not found"() {
+        when:
+        controller.search(FOO)
+
+        then:
+        response.text == ""
     }
 }
