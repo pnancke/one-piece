@@ -8,8 +8,8 @@ class TimelineController {
 
     }
 
-    def travizDataAnime(String figuresString) {
-        def figureArray = figuresString.split(',')
+    def travizDataAnime(String figures) {
+        def figureArray = figures.split(',')
         def figureEpisodeList = []
         for (int i = 0; i < figureArray.size(); i++) {
             def currFigure = Figure.findByFigName(figureArray[i])
@@ -26,8 +26,8 @@ class TimelineController {
         render figureEpisodeList.toString()
     }
 
-    def travizDataManga(String figuresString) {
-        def figureArray = figuresString.split(',')
+    def travizDataManga(String figures) {
+        def figureArray = figures.split(',')
         def figureEpisodeList = []
         for (int i = 0; i < figureArray.size(); i++) {
             def currFigure = Figure.findByFigName(figureArray[i])
@@ -46,11 +46,12 @@ class TimelineController {
 
     private static void createMangaEpisodeString(Figure currFigure, Set<MangaEpisode> appearance,
                                                  ArrayList figureEpisodeList) {
+        def sortedAppearance = appearance.toSorted { a, b -> a.maeNumber <=> b.maeNumber }
         def figEpisodeJsonObject = new JSONObject()
         figEpisodeJsonObject["edition"] = currFigure.getFigName()
         def figEpisodeNumber = new StringBuilder()
-        for (int j = 0; j < appearance.size(); j++) {
-            figEpisodeNumber.append(appearance[j].getMaeNumber() + " ")
+        for (int j = 0; j < sortedAppearance.size(); j++) {
+            figEpisodeNumber.append(sortedAppearance[j].getMaeNumber() + " ")
         }
         figEpisodeNumber.deleteCharAt(figEpisodeNumber.length() - 1)
         figEpisodeJsonObject["text"] = figEpisodeNumber.toString()
@@ -59,11 +60,12 @@ class TimelineController {
 
     private static void createAnimeEpisodeString(Figure currFigure, Set<AnimeEpisode> appearance,
                                                  ArrayList figureEpisodeList) {
+        def sortedAppearance = appearance.toSorted { a, b -> a.aneNumber <=> b.aneNumber }
         def figEpisodeJsonObject = new JSONObject()
         figEpisodeJsonObject["edition"] = currFigure.getFigName()
         def figEpisodeNumber = new StringBuilder()
-        for (int j = 0; j < appearance.size(); j++) {
-            figEpisodeNumber.append(appearance[j].getAneNumber() + " ")
+        for (int j = 0; j < sortedAppearance.size(); j++) {
+            figEpisodeNumber.append(sortedAppearance[j].getAneNumber() + " ")
         }
         figEpisodeNumber.deleteCharAt(figEpisodeNumber.length() - 1)
         figEpisodeJsonObject["text"] = figEpisodeNumber.toString()

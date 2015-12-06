@@ -1,10 +1,11 @@
 <!doctype html>
 <html>
 <head>
+    <asset:javascript src="traviz-min.js"/>
     <asset:stylesheet src="timeline.css" media="screen, projection"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <asset:stylesheet src="traviz.css" media="screen, projection"/>
     <script>
         $(function () {
             $("#figuresSearch").autocomplete({
@@ -65,19 +66,47 @@
         }
 
         function searchFigure(figureName) {
-            $.ajax({
-                url: "${g.createLink(controller: "figure", action: "search", params:"foo")}?figureName=" + figureName,
-                success: function (result) {
-                    if (result == "") {
-                        alert("Figure " + figureName + " doesn't exist!");
-                    } else {
-                        addFigure(figureName);
-                        clearFigureSearchField();
-                        return false
+            if (figureName == null || figureName == "") {
+                alert("Please enter a name.")
+            } else {
+                $.ajax({
+                    url: "${g.createLink(controller: "figure", action: "search")}?figureName=" + figureName,
+                    success: function (result) {
+                        if (result == "") {
+                            alert("Figure " + figureName + " doesn't exist.");
+                        } else {
+                            addFigure(figureName);
+                            clearFigureSearchField();
+                            return false
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
+
+        function refreshTraviz() {
+            var figureHiddenFieldSelector = $('#figure_array_hidden');
+            var figures = figureHiddenFieldSelector.val();
+            var action = $('input[name=travizRadio]:checked', '#travizSelect').val();
+            if (figures == null || figures == "") {
+                alert("Please select at least one figure.");
+            } else {
+                $.ajax({
+                    url: "/timeline/" + action + "?figures=" + figures,
+                    success: function (result) {
+                        console.log(result);
+                        traviz.align(JSON.parse(result));
+                        traviz.visualize();
+                    }
+                });
+            }
+
+        }
+
+        var traviz = new TRAViz("containerDiv", {
+            lineBreaks: false
+        });
 
     </script>
     <title>timeline</title>
@@ -118,6 +147,20 @@
 
 <input type="hidden" value="" id="figure_array_hidden" title=""/>
 <br/>
+
+<form id="travizSelect" name="travizSelect" action="javascript:void(0);">
+    <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
+        for="anime">Anime</label><br>
+    <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br>
+    <input type="submit" onclick="refreshTraviz();" value="Generate TRAViz"/>
+</form>
+
+<div id="containerDiv"></div>
+<script type="text/javascript">
+    var traviz = new TRAViz("containerDiv", {
+        lineBreaks: false
+    });
+</script>
 
 </body>
 </html>

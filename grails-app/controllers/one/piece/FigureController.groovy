@@ -24,11 +24,16 @@ class FigureController {
 
     def search(String figureName) {
         log.info("search: " + figureName)
-        def figure = Figure.findByFigNameIlike(figureName)
-        if (figure == null) {
-            render ""
+        if (figureName != null) {
+            def figure = Figure.findByFigNameIlike(figureName)
+            if (figure == null) {
+                render ""
+            } else {
+                render figure.figName
+            }
         } else {
-            render figure.figName
+            render ""
         }
+
     }
 }
