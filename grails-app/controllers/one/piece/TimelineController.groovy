@@ -18,12 +18,7 @@ class TimelineController {
             } else {
                 def appearance = currFigure.animeEpisodeAppearance
                 if (appearance != null) {
-                    for (int j = 0; j < appearance.size(); j++) {
-                        def figEpisodeJsonObject = new JSONObject()
-                        figEpisodeJsonObject["edition"] = currFigure.getFigName()
-                        figEpisodeJsonObject["text"] = appearance[j].getAneNumber()
-                        figureEpisodeList << figEpisodeJsonObject.toString()
-                    }
+                    createAnimeEpisodeString(currFigure, appearance, figureEpisodeList)
                 }
             }
         }
@@ -41,16 +36,37 @@ class TimelineController {
             } else {
                 def appearance = currFigure.mangaEpisodeAppearance
                 if (appearance != null) {
-                    for (int j = 0; j < appearance.size(); j++) {
-                        def figEpisodeJsonObject = new JSONObject()
-                        figEpisodeJsonObject["edition"] = currFigure.getFigName()
-                        figEpisodeJsonObject["text"] = appearance[j].getMaeNumber()
-                        figureEpisodeList << figEpisodeJsonObject.toString()
-                    }
+                    createMangaEpisodeString(currFigure, appearance, figureEpisodeList)
                 }
             }
         }
         log.info("travizDataManga response: " + figureEpisodeList.toString())
         render figureEpisodeList.toString()
+    }
+
+    private static void createMangaEpisodeString(Figure currFigure, Set<MangaEpisode> appearance,
+                                                 ArrayList figureEpisodeList) {
+        def figEpisodeJsonObject = new JSONObject()
+        figEpisodeJsonObject["edition"] = currFigure.getFigName()
+        def figEpisodeNumber = new StringBuilder()
+        for (int j = 0; j < appearance.size(); j++) {
+            figEpisodeNumber.append(appearance[j].getMaeNumber() + " ")
+        }
+        figEpisodeNumber.deleteCharAt(figEpisodeNumber.length() - 1)
+        figEpisodeJsonObject["text"] = figEpisodeNumber.toString()
+        figureEpisodeList << figEpisodeJsonObject.toString()
+    }
+
+    private static void createAnimeEpisodeString(Figure currFigure, Set<AnimeEpisode> appearance,
+                                                 ArrayList figureEpisodeList) {
+        def figEpisodeJsonObject = new JSONObject()
+        figEpisodeJsonObject["edition"] = currFigure.getFigName()
+        def figEpisodeNumber = new StringBuilder()
+        for (int j = 0; j < appearance.size(); j++) {
+            figEpisodeNumber.append(appearance[j].getAneNumber() + " ")
+        }
+        figEpisodeNumber.deleteCharAt(figEpisodeNumber.length() - 1)
+        figEpisodeJsonObject["text"] = figEpisodeNumber.toString()
+        figureEpisodeList << figEpisodeJsonObject.toString()
     }
 }
