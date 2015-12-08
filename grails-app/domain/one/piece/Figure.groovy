@@ -1,5 +1,7 @@
 package one.piece
 
+import org.apache.commons.lang.builder.EqualsBuilder
+
 import com.google.common.base.Strings
 import org.hibernate.sql.JoinType
 
@@ -19,7 +21,7 @@ class Figure {
         String getKey() { name() }
     }
     FigGender figGender
-    Integer figAge
+    int figAge
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     byte[] figPicture
@@ -27,7 +29,23 @@ class Figure {
     Marine figMarine
     Pirate figPirate
     static belongsTo = [marine: Marine, pirate: Pirate]
+    String url
+    static transients = ['url']
 
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        Figure figure = (Figure) o
+
+        if (figName != figure.figName) return false
+
+        return true
+    }
+
+    int hashCode() {
+        return (figName != null ? figName.hashCode() : 0)
+    }
     static constraints = {
         figRace nullable: true
         figAge nullable: true
