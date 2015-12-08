@@ -8,7 +8,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(TimelineController)
-@Mock([Figure, AnimeEpisode])
+@Mock([Figure, AnimeEpisode, MangaEpisode])
 class TimelineControllerSpec extends Specification {
 
 
@@ -44,7 +44,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + ANIME_1_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
     }
 
     void "test traviz anime with two figures"() {
@@ -58,8 +58,8 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME + ',' + FIGURE_2_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + ANIME_1_NUMBER + "}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":" + ANIME_1_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}, " +
+                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
     }
 
     void "test traviz anime with two episodes"() {
@@ -73,8 +73,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + ANIME_1_NUMBER + "}, " +
-                "{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + ANIME_2_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}]"
     }
 
     void "test traviz manga with one figure results empty array"() {
@@ -88,44 +87,43 @@ class TimelineControllerSpec extends Specification {
     }
 
     void "test traviz manga with one episode and one figure"() {
-        def mangaEpisode = new AnimeEpisode(aneNumber: 1).save(failOnError: true)
+        def mangaEpisode = new MangaEpisode(maeNumber: 1).save(failOnError: true)
         def figure = new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
         mangaEpisode.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME)
+        controller.travizDataManga(FIGURE_1_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + MANGA_1_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
     }
 
     void "test traviz manga with two figures"() {
-        def mangaEpisode = new AnimeEpisode(aneNumber: 1).save(failOnError: true)
+        def mangaEpisode = new MangaEpisode(maeNumber: 1).save(failOnError: true)
         def figure1 = new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
         def figure2 = new Figure(figName: FIGURE_2_NAME, figGender: "Male").save(failOnError: true)
         mangaEpisode.addToFigures(figure1).save(failOnError: true)
         mangaEpisode.addToFigures(figure2).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME + ',' + FIGURE_2_NAME)
+        controller.travizDataManga(FIGURE_1_NAME + ',' + FIGURE_2_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + MANGA_1_NUMBER + "}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":" + MANGA_1_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}, " +
+                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
     }
 
     void "test traviz manga with two episodes"() {
-        def mangaEpisode1 = new AnimeEpisode(aneNumber: MANGA_1_NUMBER).save(failOnError: true)
-        def mangaEpisode2 = new AnimeEpisode(aneNumber: MANGA_2_NUMBER).save(failOnError: true)
+        def mangaEpisode1 = new MangaEpisode(maeNumber: MANGA_1_NUMBER).save(failOnError: true)
+        def mangaEpisode2 = new MangaEpisode(maeNumber: MANGA_2_NUMBER).save(failOnError: true)
         def figure = new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
         mangaEpisode1.addToFigures(figure).save(failOnError: true)
         mangaEpisode2.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME)
+        controller.travizDataManga(FIGURE_1_NAME)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + MANGA_1_NUMBER + "}, " +
-                "{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":" + MANGA_2_NUMBER + "}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"
     }
 }

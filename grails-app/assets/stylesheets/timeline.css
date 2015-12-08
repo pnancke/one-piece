@@ -13,3 +13,11 @@ table.figures {
     border: none;
     background: none;
 }
+
+fieldset {
+    border: hidden;
+}
+
+#travizSelect {
+    line-height: 1.5;
+}
