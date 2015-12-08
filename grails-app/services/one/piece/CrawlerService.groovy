@@ -1,13 +1,15 @@
 package one.piece
 
 import grails.transaction.Transactional
+import org.aspectj.apache.bcel.classfile.Unknown
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 
 @Transactional
 class CrawlerService {
-
-
+    List<Figure> figures;
 
     /**
      * Process the URL and return the Info Box data.
@@ -28,7 +30,6 @@ class CrawlerService {
             for (it in boxContent) {
                 def charInfo = it.select("td")
                 infoBoxData.add(charInfo.text())
-
             }
 
         }
@@ -42,43 +43,19 @@ class CrawlerService {
     public void getGangs() throws IOException {
 
         def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/Category:Pirate_Crews").get();
-        // Get the content inside the table Devil Fruit, witch is the type and
-        // name of fruits, separated by type.
+        // Get the content inside the table Gangs.
         def gangs = doc.select("table[title=Pirate Crews Navibox]").first().select("table.collapsible")
                 .select("td[style = text-align: left;]").select("a");
 
         for (index in gangs) {
-            new Gang(ganName: index.text()).save()
+            def gang = new Gang(ganName: index.text()).save()
         }
     }
 
     /**
-     * get the name of all characters who are on the Manga Chapter
-     * @param URL url of Chapter
+     * get the name and type of all Devil Fruits who appear on Mangas or Episodes of One Piece
      * @throws IOException
      */
-    public void getCharactersManga(String URL) throws IOException {
-        def doc = Jsoup.connect(URL).get();
-
-        def characters = doc.select("table.CharTable").select("li").select("a");
-
-        for (element in characters) {
-            System.out.println(element.text());
-        }
-
-    }
-
-    /**
-     * get the name from a Episode or Chapter of a link
-     * @throws IOException
-     */
-    public void getEpisodeChapterName(String URL) throws IOException {
-        def doc = Jsoup.connect(URL).get();
-
-        System.out.println(doc.select("th").first().text());
-    }
-
-
     public void getDevilFruit() throws IOException {
 
         def defFruitType;
@@ -99,9 +76,124 @@ class CrawlerService {
         }
     }
 
-
-    def serviceMethod() {
-        getDevilFruit()
-        getGangs()
+    /**
+     * get all characters name
+     */
+    public void getCharactersName() {
+        figures = new ArrayList<Figure>()
+        addCanonCharacters()
+        addNonCanonCharacters()
     }
+
+    private void addCanonCharacters() {
+
+        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/List_of_Canon_Characters").get();
+        def lineInformation = doc.select("table.wikitable").first().select("tr");
+
+        for (index in lineInformation) {
+            def a = index.select("td")
+            if (index.select("td") != null && a.size() > 0) {
+                figures.add(new Figure(figName: index.select("td").get(1).select("a").text(), figGender: "Male").save())
+            }
+        }
+    }
+
+    private void addNonCanonCharacters() {
+
+        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/List_of_Non_Canon_Characters").get();
+        def lineInformation = doc.select("table.wikitable").first().select("tr");
+
+        for (index in lineInformation) {
+            def a = index.select("td")
+            if (index.select("td") != null && a.size() > 0) {
+                figures.add(new Figure(figName: index.select("td").get(1).select("a").text(), figGender: "Male").save())
+            }
+        }
+    }
+
+    /**
+     * saves in the database the episode's name and the characters of these episode.
+     * @param URL
+     * @param epNumber
+     */
+    public boolean getCharactersEpisode(String URL, int epNumber) {
+        try {
+            def doc = Jsoup.connect(URL).timeout(1000000).get()
+            def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save()
+
+            def charName;
+            Figure fig;
+            def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
+            for (index in charTable) {
+                fig = new Figure()
+                fig.figName = index.select("a").text()
+                if (figures.contains(fig) != null) {
+                    def a = figures.indexOf(fig)
+                    if (a > 0) {
+                        fig = figures.get(a)
+                        episode.addToFigures(fig).save(failOnError: true)
+
+                    }
+                }
+            }
+            return true
+        }
+        // catch if the web page doesn't exist, meaning that we already have the last episode
+        catch (HttpStatusException e) {
+            return false
+        }
+    }
+
+/**
+ * saves in the database the chapter's name and the characters on manga's chapter.
+ * @param URL
+ */
+    public boolean getCharactersManga(String URL, int chNumber) throws IOException {
+        try {
+            def doc = Jsoup.connect(URL).timeout(1000000).get();
+
+            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save()
+
+            def characters = doc.select("table.CharTable").select("li").select("a");
+            Figure fig;
+            for (element in characters) {
+                fig = new Figure()
+                fig.figName = element.text()
+                if (figures.contains(fig) != null) {
+                    def a = figures.indexOf(fig)
+                    if (a > 0) {
+                        fig = figures.get(a)
+                        chapter.addToFigures(fig).save(failOnError: true)
+                    }
+                }
+
+            }
+            return true
+        }
+        // catch if the web page doesn't exist, meaning that we already have the last chapter
+        catch (HttpStatusException e) {
+            return false
+        }
+    }
+    
+    def serviceMethod() {
+        getCharactersName();
+        def r = true
+        def i = 1
+        long start = System.nanoTime();
+        System.out.println(start)
+        while (r == true) {
+            r = getCharactersEpisode("http://onepiece.wikia.com/wiki/Episode_" + i.toString(), i)
+            i++
+        }
+        r = true
+        i = 1
+        while (r == true) {
+            r = getCharactersManga("http://onepiece.wikia.com/wiki/Chapter_" + i.toString(), i)
+            i++
+        }
+        long end = System.nanoTime();
+        System.out.println((end - start).toString())
+    }
+
 }

@@ -1,5 +1,7 @@
 package one.piece
 
+import org.apache.commons.lang.builder.EqualsBuilder
+
 class Figure {
     String figName
     String figRace
@@ -24,12 +26,29 @@ class Figure {
     Marine figMarine
     Pirate figPirate
     static belongsTo = [marine: Marine, pirate: Pirate]
+    String url
+    static transients = ['url']
 
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        Figure figure = (Figure) o
+
+        if (figName != figure.figName) return false
+
+        return true
+    }
+
+    int hashCode() {
+        return (figName != null ? figName.hashCode() : 0)
+    }
     static constraints = {
         figRace nullable: true
         figAge nullable: true
         figOrigin nullable: true
         mangaEpisodeAppearance nullable: true
+
         animeEpisodeAppearance nullable: true
         figPicture nullable: true
         figMarine nullable: true
