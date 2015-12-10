@@ -39,8 +39,6 @@
                     $('#figureList').append(newDiv);
                     newDiv.innerHTML = '<input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
                             + input;
-                } else {
-                    alert(input + ' is already in the list!');
                 }
             }
         }
