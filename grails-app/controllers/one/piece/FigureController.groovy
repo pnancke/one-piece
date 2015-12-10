@@ -30,11 +30,16 @@ class FigureController {
             } else if ("pirate".equalsIgnoreCase(figureName)) {
                 results = Pirate.list().figure.figName
             } else {
-                def figure = Figure.findByFigNameIlike(figureName)
-                if (figure == null) {
-                    successResponse = false
+                def gang = Gang.findByGanNameIlike(figureName)
+                if (gang != null) {
+                    results = gang.pirates.figure.figName
                 } else {
-                    results[0] = figure.figName
+                    def figure = Figure.findByFigNameIlike(figureName)
+                    if (figure == null) {
+                        successResponse = false
+                    } else {
+                        results[0] = figure.figName
+                    }
                 }
             }
         } else {

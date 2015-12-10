@@ -9,7 +9,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(FigureController)
-@Mock([Figure, Marine, Pirate])
+@Mock([Figure, Marine, Pirate, Gang])
 class FigureControllerSpec extends Specification {
     public static final String FIG_1_NAME = "Fig1-093605"
     public static final String FIG_1_NAME_LOWERCASE = "fig1-093605"
@@ -23,6 +23,8 @@ class FigureControllerSpec extends Specification {
     public static final String MARINE_LOWERCASE = "marine"
     public static final String PIRATE = "Pirate"
     public static final String PIRATE_LOWERCASE = "pirate"
+    public static final String GANG = "Gang"
+    public static final String GANG_LOWERCASE = "gang"
 
 
     def setup() {
@@ -163,6 +165,30 @@ class FigureControllerSpec extends Specification {
 
         when:
         controller.search(PIRATE_LOWERCASE)
+
+        then:
+        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+    }
+
+    void "test search gang"() {
+        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
+        def gang = new Gang(ganName: GANG).save(failOnError: true)
+        new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
+
+        when:
+        controller.search(GANG)
+
+        then:
+        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+    }
+
+    void "test search gang ignores case"() {
+        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
+        def gang = new Gang(ganName: GANG).save(failOnError: true)
+        new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
+
+        when:
+        controller.search(GANG_LOWERCASE)
 
         then:
         response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
