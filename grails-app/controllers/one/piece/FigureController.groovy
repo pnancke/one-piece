@@ -2,7 +2,6 @@ package one.piece
 
 import groovy.json.JsonBuilder
 
-
 class FigureController {
 
     def scaffold = Figure
@@ -18,22 +17,39 @@ class FigureController {
 
         log.info('found figures: ' + resultFigureNames)
         def resultJson = new JsonBuilder(resultFigureNames).toString()
-        response.setContentType("application/json")
         render resultJson
     }
 
     def search(String figureName) {
-        log.info("search: " + figureName)
+        def successResponse = true
+        log.info("search for: " + figureName)
+        def results = [];
         if (figureName != null) {
-            def figure = Figure.findByFigNameIlike(figureName)
-            if (figure == null) {
-                render ""
+            if ("marine".equalsIgnoreCase(figureName)) {
+                results = Marine.list().figure.figName
+            } else if ("pirate".equalsIgnoreCase(figureName)) {
+                results = Pirate.list().figure.figName
             } else {
-                render figure.figName
+                def figure = Figure.findByFigNameIlike(figureName)
+                if (figure == null) {
+                    successResponse = false
+                } else {
+                    results[0] = figure.figName
+                }
             }
         } else {
-            render ""
+            successResponse = false
         }
 
+        log.info("results: " + results)
+        def json = new JsonBuilder()
+        json {
+            success(successResponse)
+            count(results.size())
+            data(results)
+        }
+        log.info("response json" + json)
+        render json
     }
+
 }

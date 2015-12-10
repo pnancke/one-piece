@@ -20,6 +20,7 @@ class BootStrap {
         animeEpisode.addToFigures(figure2).save(failOnError: true)
         animeEpisode2.addToFigures(figure2).save(failOnError: true)
         new Marine(figure: figure).save(failOnError: true)
+        new Marine(figure: figure2).save(failOnError: true)
         new Pirate(figure: figure2).save(failOnError: true)
     }
     def destroy = {

@@ -14,8 +14,7 @@
                 select: function (event, ui) {
                     var input = ui.item.label;
                     console.log('selected: ' + input);
-                    addFigure(input);
-                    clearFigureSearchField();
+                    setFigureSearchFieldText(input);
                     return false;
                 }
             });
@@ -61,8 +60,8 @@
             });
         }
 
-        function clearFigureSearchField() {
-            document.getElementById('figuresSearch').value = '';
+        function setFigureSearchFieldText(s) {
+            document.getElementById('figuresSearch').value = s;
         }
 
         function searchFigure(figureName) {
@@ -70,19 +69,25 @@
                 alert("Please enter a name.")
             } else {
                 $.ajax({
+                    dataType: "json",
                     url: "${g.createLink(controller: "figure", action: "search")}?figureName=" + figureName,
                     success: function (result) {
-                        if (result == "") {
-                            alert("Figure " + figureName + " doesn't exist.");
-                        } else {
-                            addFigure(figureName);
-                            clearFigureSearchField();
+                        if (result.success == true) {
+                            for (var i = 0; i < result.data.length; i++) {
+                                addFigure(result.data[i]);
+                            }
+                            setFigureSearchFieldText("");
                             return false
+
+                        } else {
+                            alert("Figure " + figureName + " doesn't exist.");
                         }
+                    },
+                    error: function () {
+                        alert("Unexpected error while searching for " + figureName);
                     }
                 });
             }
-
         }
 
         function refreshTraviz() {
