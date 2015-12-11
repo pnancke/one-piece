@@ -1,6 +1,7 @@
 package one.piece
 
 import groovy.json.JsonBuilder
+import org.apache.commons.lang.StringUtils
 
 class FigureController {
 
@@ -9,14 +10,24 @@ class FigureController {
     def index() {}
 
     def autocomplete(String term) {
+        def names = []
         def figures = Figure.findAllByFigNameIlike('%' + term + '%', [max: 10, sort: "figName"])
-        def resultFigureNames = []
-        for (int i = 0; i < figures.size(); i++) {
-            resultFigureNames << figures[i].figName
+        def gangs = Gang.findAllByGanNameIlike('%' + term + '%', [max: 10, sort: "ganName"])
+
+        names.addAll(figures.figName)
+        names.addAll(gangs.ganName)
+
+        if (StringUtils.containsIgnoreCase("marine", term)) {
+            names.add("Marine")
+        }
+        if (StringUtils.containsIgnoreCase("pirate", term)) {
+            names.add("Pirate")
         }
 
-        log.info('found figures: ' + resultFigureNames)
-        def resultJson = new JsonBuilder(resultFigureNames).toString()
+        names.sort()
+        def resultNamesSplitted = names.collate(10)[0]
+        log.info('found figures: ' + resultNamesSplitted)
+        def resultJson = new JsonBuilder(resultNamesSplitted).toString()
         render resultJson
     }
 
@@ -54,7 +65,7 @@ class FigureController {
             data(results)
         }
         log.info("response json" + json)
-        render json
+        render json.toString()
     }
 
 }

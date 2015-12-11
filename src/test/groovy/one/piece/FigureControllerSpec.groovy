@@ -24,6 +24,8 @@ class FigureControllerSpec extends Specification {
     public static final String PIRATE = "Pirate"
     public static final String PIRATE_LOWERCASE = "pirate"
     public static final String GANG = "Gang"
+    public static final String GANG_1_NAME = "Gang1-105109"
+    public static final String GANG_1_NAME_SHORT = "Gang1"
     public static final String GANG_LOWERCASE = "gang"
 
 
@@ -90,12 +92,68 @@ class FigureControllerSpec extends Specification {
         new Figure(figName: FOO, figGender: "Female").save(failOnError: true)
         new Figure(figName: FOO, figGender: "Female").save(failOnError: true)
         new Figure(figName: FOO, figGender: "Female").save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
+        new Gang(ganName: FOO).save(failOnError: true)
 
         when:
         controller.autocomplete(FOO)
 
         then:
         response.getJson().size() == 10
+    }
+
+    void "test autocomplete contains marine"() {
+        when:
+        controller.autocomplete(MARINE)
+
+        then:
+        response.text == "[\"" + MARINE + "\"]"
+    }
+
+    void "test autocomplete contains marine ignores case"() {
+        when:
+        controller.autocomplete(MARINE_LOWERCASE)
+
+        then:
+        response.text == "[\"" + MARINE + "\"]"
+    }
+
+    void "test autocomplete contains pirate"() {
+        when:
+        controller.autocomplete(PIRATE)
+
+        then:
+        response.text == "[\"" + PIRATE + "\"]"
+    }
+
+    void "test autocomplete contains pirate ignores case"() {
+        when:
+        controller.autocomplete(PIRATE_LOWERCASE)
+
+        then:
+        response.text == "[\"" + PIRATE + "\"]"
+    }
+
+    void "test autocomplete includes gangs"() {
+        new Gang(ganName: GANG_1_NAME).save(failOnError: true)
+
+        when:
+        controller.autocomplete(GANG_1_NAME_SHORT)
+
+        then:
+        response.text == "[\"" + GANG_1_NAME + "\"]"
     }
 
     void "test search figure exists"() {
