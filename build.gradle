@@ -40,6 +40,7 @@ assets {
 
 repositories {
     mavenLocal()
+    mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
 }
 
@@ -63,6 +64,7 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache"
     compile "org.grails.plugins:scaffolding"
     compile 'org.grails.plugins:ajax-tags:1.0.0.RC1'
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
 
     runtime "org.grails.plugins:asset-pipeline"
     runtime 'mysql:mysql-connector-java:5.1.29'
