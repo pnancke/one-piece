@@ -21,3 +21,7 @@ fieldset {
 #travizSelect {
     line-height: 1.5;
 }
+
+#containerDiv {
+    overflow-y: auto;
+}
