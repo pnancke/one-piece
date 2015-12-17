@@ -14,7 +14,7 @@
                 select: function (event, ui) {
                     var input = ui.item.label;
                     console.log('selected: ' + input);
-                    setFigureSearchFieldText(input);
+                    searchFigure(input);
                     return false;
                 }
             });
