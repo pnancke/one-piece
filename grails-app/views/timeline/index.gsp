@@ -98,6 +98,9 @@
                 $.ajax({
                     url: "/timeline/" + action + "?figures=" + figures,
                     success: function (result) {
+                        traviz = new TRAViz("containerDiv", {
+                            lineBreaks: false
+                        });
                         console.log(result);
                         traviz.align(JSON.parse(result));
                         traviz.visualize();
