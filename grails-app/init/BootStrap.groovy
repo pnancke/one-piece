@@ -25,6 +25,11 @@ class BootStrap {
         def gang = new Gang(ganName: "Gang1", pirate: pirate).save(failOnError: true)
         new Gang(ganName: "Gang2", pirate: pirate2).save(failOnError: true)
         new Pirate(figure: figure3, gang: gang).save(failOnError: true)
+
+        for (int i = 5; i < 800; i++) {
+            def episode = new AnimeEpisode(aneNumber: i).save()
+            episode.addToFigures(figure).save()
+        }
     }
     def destroy = {
     }
