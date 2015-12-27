@@ -1,7 +1,5 @@
 package one.piece
 
-import org.apache.commons.lang.builder.EqualsBuilder
-
 class Figure {
     String figName
     String figRace
@@ -48,7 +46,6 @@ class Figure {
         figAge nullable: true
         figOrigin nullable: true
         mangaEpisodeAppearance nullable: true
-
         animeEpisodeAppearance nullable: true
         figPicture nullable: true
         figMarine nullable: true
