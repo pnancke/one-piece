@@ -1,14 +1,16 @@
 package one.piece
 
 import grails.transaction.Transactional
-import org.aspectj.apache.bcel.classfile.Unknown
+import org.apache.commons.logging.LogFactory
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-
 @Transactional
 class CrawlerService {
+    private static final log = LogFactory.getLog(this)
+
+    public static final String SITE_CRAWLER = "http://onepiece.wikia.com/wiki/"
     List<Figure> figures;
 
     /**
@@ -18,14 +20,11 @@ class CrawlerService {
      * @throws IOException
      */
     public static ArrayList<String> returnInfoBox(String URL) throws IOException {
-        def doc = Jsoup.connect(URL).get()
+        Document doc = Jsoup.connect(URL).get()
         def infoBoxData = new ArrayList<String>()
-
         // select documents by class "infobox", class of info boxes
         def iBox = doc.select("table.infobox").first();
-
         if (iBox != null) {
-            System.out.println(iBox.data())
             def boxContent = iBox.select("tr")
             for (it in boxContent) {
                 def charInfo = it.select("td")
@@ -42,11 +41,10 @@ class CrawlerService {
      */
     public void getGangs() throws IOException {
 
-        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/Category:Pirate_Crews").get();
+        Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Pirate_Crews").get();
         // Get the content inside the table Gangs.
         def gangs = doc.select("table[title=Pirate Crews Navibox]").first().select("table.collapsible")
                 .select("td[style = text-align: left;]").select("a");
-
         for (index in gangs) {
             def gang = new Gang(ganName: index.text()).save()
         }
@@ -59,8 +57,7 @@ class CrawlerService {
     public void getDevilFruit() throws IOException {
 
         def defFruitType;
-
-        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/Devil_Fruit").get();
+        Document doc = Jsoup.connect(SITE_CRAWLER + "Devil_Fruit").get();
         // Get the content inside the table Devil Fruit, witch is the type and
         // name of fruits, separated by type.
         def fruitTable = doc.select("table[title=Devil Fruits Navibox]").first().select("table.collapsible");
@@ -81,15 +78,15 @@ class CrawlerService {
      */
     public void getCharactersName() {
         figures = new ArrayList<Figure>()
-        addCanonCharacters()
-        addNonCanonCharacters()
+
+        addCharacters("List_of_Canon_Characters")
+        addCharacters("List_of_Non_Canon_Characters")
     }
 
-    private void addCanonCharacters() {
+    private void addCharacters(String URL) {
 
-        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/List_of_Canon_Characters").get();
+        Document doc = Jsoup.connect(SITE_CRAWLER + URL).get();
         def lineInformation = doc.select("table.wikitable").first().select("tr");
-
         for (index in lineInformation) {
             def a = index.select("td")
             if (index.select("td") != null && a.size() > 0) {
@@ -98,15 +95,23 @@ class CrawlerService {
         }
     }
 
-    private void addNonCanonCharacters() {
-
-        def doc = Jsoup.connect("http://onepiece.wikia.com/wiki/List_of_Non_Canon_Characters").get();
-        def lineInformation = doc.select("table.wikitable").first().select("tr");
-
-        for (index in lineInformation) {
-            def a = index.select("td")
-            if (index.select("td") != null && a.size() > 0) {
-                figures.add(new Figure(figName: index.select("td").get(1).select("a").text(), figGender: "Male").save())
+    private void mapCharactersByApparition() {
+        def r = true
+        def i = 1
+        while (r) {
+            r = getCharactersEpisode(SITE_CRAWLER + "Episode_" + i.toString(), i)
+            i++
+            if (i % 10 == 0) {
+                log.info("until " + i + "th Episode Done!")
+            }
+        }
+        r = true
+        i = 1
+        while (r) {
+            r = getCharactersManga(SITE_CRAWLER + "Chapter_" + i.toString(), i)
+            i++
+            if (i % 10 == 0) {
+                log.info("until " + i + "th Chapter Done!")
             }
         }
     }
@@ -117,11 +122,11 @@ class CrawlerService {
      * @param epNumber
      */
     public boolean getCharactersEpisode(String URL, int epNumber) {
+        int attempt = 0
         try {
-            def doc = Jsoup.connect(URL).timeout(1000000).get()
-            def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save()
+            Document doc = Jsoup.connect(URL).timeout(1000000).get()
 
-            def charName;
+            def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save(flush: true, failOnError: true)
             Figure fig;
             def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
             for (index in charTable) {
@@ -132,15 +137,32 @@ class CrawlerService {
                     if (a > 0) {
                         fig = figures.get(a)
                         episode.addToFigures(fig).save(failOnError: true)
-
                     }
                 }
             }
             return true
         }
+        catch (NullPointerException ex) {
+            log.error("Fail to catch Episode number: " + epNumber + " on link: " + URL);
+            return true;
+        }
         // catch if the web page doesn't exist, meaning that we already have the last episode
         catch (HttpStatusException e) {
-            return false
+            if (e.statusCode == 410 || e.statusCode == 404) {
+                log.info("stopped in: " + epNumber)
+                return false
+            } else {
+                attempt.next();
+                if (attempt < 4) {
+                    getCharactersEpisode(URL, epNumber)
+                }
+            }
+        }
+        catch (SocketException ex) {
+            attempt.next();
+            if (attempt < 4) {
+                getCharactersEpisode(URL, epNumber)
+            }
         }
     }
 
@@ -149,11 +171,10 @@ class CrawlerService {
  * @param URL
  */
     public boolean getCharactersManga(String URL, int chNumber) throws IOException {
+        int attempt = 0;
         try {
-            def doc = Jsoup.connect(URL).timeout(1000000).get();
-
-            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save()
-
+            Document doc = Jsoup.connect(URL).timeout(1000000).get();
+            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save(flush: true, failOnError: true)
             def characters = doc.select("table.CharTable").select("li").select("a");
             Figure fig;
             for (element in characters) {
@@ -166,34 +187,43 @@ class CrawlerService {
                         chapter.addToFigures(fig).save(failOnError: true)
                     }
                 }
-
             }
             return true
+
+        }
+        catch (NullPointerException ex) {
+            log.error("Fail to catch Episode number: " + chNumber + " on link: " + URL);
+            return true;
         }
         // catch if the web page doesn't exist, meaning that we already have the last chapter
         catch (HttpStatusException e) {
-            return false
+            if (e.statusCode == 410 || e.statusCode == 404) {
+                log.info("stopped in: " + chNumber)
+                return false
+            } else {
+                attempt.next();
+                if (attempt < 4) {
+                    getCharactersManga(URL, chNumber)
+                }
+            }
         }
-    }
-    
-    def serviceMethod() {
-        getCharactersName();
-        def r = true
-        def i = 1
-        long start = System.nanoTime();
-        System.out.println(start)
-        while (r == true) {
-            r = getCharactersEpisode("http://onepiece.wikia.com/wiki/Episode_" + i.toString(), i)
-            i++
+        catch (SocketException ex) {
+            attempt.next();
+            if (attempt < 4) {
+                getCharactersManga(URL, chNumber)
+            }
         }
-        r = true
-        i = 1
-        while (r == true) {
-            r = getCharactersManga("http://onepiece.wikia.com/wiki/Chapter_" + i.toString(), i)
-            i++
-        }
-        long end = System.nanoTime();
-        System.out.println((end - start).toString())
     }
 
+
+    def serviceMethod() {
+        log.info("Process Start")
+        getDevilFruit();
+        log.info("Devil Fruit Done!")
+        getGangs();
+        log.info("Gangs Done!")
+        getCharactersName();
+        log.info("Characters Name Done!")
+        mapCharactersByApparition();
+    }
 }
