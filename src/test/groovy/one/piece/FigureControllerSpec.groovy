@@ -25,8 +25,8 @@ class FigureControllerSpec extends Specification {
     public static final String PIRATE_LOWERCASE = "pirate"
     public static final String GANG = "Gang"
     public static final String GANG_1_NAME = "Gang1-105109"
+    public static final String GANG_1_NAME_LOWERCASE = "gang1-105109"
     public static final String GANG_1_NAME_SHORT = "Gang1"
-    public static final String GANG_LOWERCASE = "gang"
 
 
     def setup() {
@@ -45,7 +45,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_NOT_EXISTS)
 
         then:
-        response.text == "[]"
+        response.text == "[\"" + FIG_NAME_NOT_EXISTS + " (Attribute)\"]"
     }
 
     void "test autocompletion with one match"() {
@@ -55,7 +55,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + "\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT + " (Attribute)\"]"
     }
 
     void "test autocompletion ignores case"() {
@@ -65,7 +65,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT_LOWERCASE)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + "\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT_LOWERCASE + " (Attribute)\"]"
     }
 
     void "test autocompletion with two matches"() {
@@ -76,7 +76,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + "\",\"" + FIG_2_NAME + "\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_2_NAME + " (Figure)\",\"" + FIG_NAME_SHORT + " (Attribute)\"]"
     }
 
     void "test autocompletion maximum 10 suggestions"() {
@@ -119,7 +119,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE)
 
         then:
-        response.text == "[\"" + MARINE + "\"]"
+        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE + " (Attribute)\"]"
     }
 
     void "test autocomplete contains marine ignores case"() {
@@ -127,7 +127,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE_LOWERCASE)
 
         then:
-        response.text == "[\"" + MARINE + "\"]"
+        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE_LOWERCASE + " (Attribute)\"]"
     }
 
     void "test autocomplete contains pirate"() {
@@ -135,7 +135,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE)
 
         then:
-        response.text == "[\"" + PIRATE + "\"]"
+        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE + " (Attribute)\"]"
     }
 
     void "test autocomplete contains pirate ignores case"() {
@@ -143,7 +143,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE_LOWERCASE)
 
         then:
-        response.text == "[\"" + PIRATE + "\"]"
+        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE_LOWERCASE + " (Attribute)\"]"
     }
 
     void "test autocomplete includes gangs"() {
@@ -153,27 +153,27 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(GANG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + GANG_1_NAME + "\"]"
+        response.text == "[\"" + GANG_1_NAME + " (Group)\",\"" + GANG_1_NAME_SHORT + " (Attribute)\"]"
     }
 
     void "test search figure exists"() {
         new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
 
         when:
-        controller.search(FIG_1_NAME)
+        controller.search(FIG_1_NAME + " (Figure)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + FIG_1_NAME + ' (Figure)"}'
     }
 
     void "test search ignores case"() {
         new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
 
         when:
-        controller.search(FIG_1_NAME_LOWERCASE)
+        controller.search(FIG_1_NAME_LOWERCASE + " (Figure)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + FIG_1_NAME_LOWERCASE + ' (Figure)"}'
     }
 
     void "test search empty response when not found"() {
@@ -181,7 +181,7 @@ class FigureControllerSpec extends Specification {
         controller.search(FOO)
 
         then:
-        response.text == '{"success":false,"count":0,"data":[]}'
+        response.text == '{"success":false,"count":0,"data":\"\"}'
     }
 
     void "test search marine"() {
@@ -189,10 +189,10 @@ class FigureControllerSpec extends Specification {
         new Marine(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(MARINE)
+        controller.search(MARINE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + MARINE + ' (Group)"}'
     }
 
     void "test search marine ignores case"() {
@@ -200,10 +200,10 @@ class FigureControllerSpec extends Specification {
         new Marine(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(MARINE_LOWERCASE)
+        controller.search(MARINE_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + MARINE_LOWERCASE + ' (Group)"}'
     }
 
     void "test search pirate"() {
@@ -211,10 +211,10 @@ class FigureControllerSpec extends Specification {
         new Pirate(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(PIRATE)
+        controller.search(PIRATE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + PIRATE + ' (Group)"}'
     }
 
     void "test search pirate ignores case"() {
@@ -222,10 +222,10 @@ class FigureControllerSpec extends Specification {
         new Pirate(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(PIRATE_LOWERCASE)
+        controller.search(PIRATE_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + PIRATE_LOWERCASE + ' (Group)"}'
     }
 
     void "test search gang"() {
@@ -234,10 +234,10 @@ class FigureControllerSpec extends Specification {
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
-        controller.search(GANG)
+        controller.search(GANG + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + GANG + " (Group)" + '"}'
     }
 
     void "test search gang ignores case"() {
@@ -246,9 +246,9 @@ class FigureControllerSpec extends Specification {
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
-        controller.search(GANG_LOWERCASE)
+        controller.search(GANG_1_NAME_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":["' + FIG_1_NAME + '"]}'
+        response.text == '{"success":true,"count":1,"data":"' + GANG_1_NAME_LOWERCASE + ' (Group)"}'
     }
 }

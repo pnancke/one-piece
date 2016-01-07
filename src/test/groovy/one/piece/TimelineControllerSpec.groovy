@@ -10,8 +10,6 @@ import spock.lang.Specification
 @TestFor(TimelineController)
 @Mock([Figure, AnimeEpisode, MangaEpisode])
 class TimelineControllerSpec extends Specification {
-
-
     public static final String FIGURE_1_NAME = "Figure1"
     public static final String FIGURE_2_NAME = "Figure2"
     public static final int ANIME_1_NUMBER = 1
@@ -41,10 +39,10 @@ class TimelineControllerSpec extends Specification {
         animeEpisode.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME)
+        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)")
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
     }
 
     void "test traviz anime with two figures"() {
@@ -55,11 +53,11 @@ class TimelineControllerSpec extends Specification {
         animeEpisode.addToFigures(figure2).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME + ',' + FIGURE_2_NAME)
+        controller.travizDataAnime(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + ' (Figure)')
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}, " +
+                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
     }
 
     void "test traviz anime with two episodes"() {
@@ -70,10 +68,10 @@ class TimelineControllerSpec extends Specification {
         animeEpisode2.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME)
+        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)")
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}]"
     }
 
     void "test traviz manga with one figure results empty array"() {
@@ -92,10 +90,10 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME)
+        controller.travizDataManga(FIGURE_1_NAME + " (Figure)")
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
     }
 
     void "test traviz manga with two figures"() {
@@ -106,11 +104,11 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode.addToFigures(figure2).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME + ',' + FIGURE_2_NAME)
+        controller.travizDataManga(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + " (Figure)")
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}, " +
+                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
     }
 
     void "test traviz manga with two episodes"() {
@@ -121,9 +119,9 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode2.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME)
+        controller.travizDataManga(FIGURE_1_NAME + " (Figure)")
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + "\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"
+        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"
     }
 }

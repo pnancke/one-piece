@@ -5,7 +5,7 @@
     <asset:javascript src="spin.js"/>
     <asset:stylesheet src="timeline.css" media="screen, projection"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <asset:javascript src="jquery-ui.js"/>
     <asset:stylesheet src="traviz.css" media="screen, projection"/>
     <script>
         $(function () {
@@ -102,17 +102,15 @@
             } else {
                 $.ajax({
                     dataType: "json",
-                    url: "${g.createLink(controller: "figure", action: "search")}?figureName=" + figureName,
+                    url: "${g.createLink(controller: "figure", action: "search")}?term=" + figureName,
                     success: function (result) {
                         if (result.success == true) {
-                            for (var i = 0; i < result.data.length; i++) {
-                                addFigure(result.data[i]);
-                            }
+                            addFigure(result.data);
                             setFigureSearchFieldText("");
                             return false
 
                         } else {
-                            alert("Figure " + figureName + " doesn't exist.");
+                            alert(figureName + " doesn't exist.");
                         }
                     },
                     error: function () {
@@ -133,15 +131,19 @@
                 $.ajax({
                     url: "/timeline/" + action + "?figures=" + figures,
                     success: function (result) {
-                        traviz = new TRAViz("containerDiv", {
-                            lineBreaks: false
-                        });
-                        console.log(result);
-                        traviz.align(JSON.parse(result));
-                        console.log("Generating Graph with Traviz...");
-                        traviz.visualize();
-                        console.log("Graph generation complete.");
                         stopSpinner();
+                        if (result == null || result == "[]") {
+                            alert("No episodes found for selected Entities!")
+                        } else {
+                            traviz = new TRAViz("containerDiv", {
+                                lineBreaks: false
+                            });
+                            console.log("traviz data" + result);
+                            traviz.align(JSON.parse(result));
+                            console.log("Generating Graph with Traviz...");
+                            traviz.visualize();
+                            console.log("Graph generation complete.");
+                        }
                     }
                 });
             }
@@ -165,9 +167,8 @@
 <table class="figures">
     <tr>
         <td>
-            Search for figures to add them.
-        </td>
 
+        </td>
         <td>
             Selected figures:
         </td>
@@ -176,7 +177,8 @@
         <td valign="top">
             <div>
                 <form name="searchFigures" action="javascript:void(0);">
-                    <input type="text" id="figuresSearch" name="figureSearch" placeholder="Search"/>
+                    <input type="text" id="figuresSearch" name="figureSearch"
+                           placeholder="Search for (Figure), (Group) or (Attribute)" size="35"/>
                     <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
                            value="Add"/>
                 </form>
