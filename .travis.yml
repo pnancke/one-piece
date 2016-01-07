@@ -5,9 +5,7 @@ jdk:
 
 before_install:
 - rm -rf ~/.gvm
-- curl -s get.gvmtool.net > ~/install_gvm.sh
-- chmod 775 ~/install_gvm.sh
-- ~/install_gvm.sh
+- curl -s http://get.sdkman.io | bash
 - echo sdkman_auto_answer=true > ~/.sdkman/etc/config
 - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 - sdk install grails 3.0.9
