@@ -3,7 +3,7 @@ package one.piece
 class Pirate {
     Figure figure
     String pirPosition
-    int pirBounty
+    Integer pirBounty
 
     static belongsTo = [Figure]
     static hasMany = [gangs: Gang]

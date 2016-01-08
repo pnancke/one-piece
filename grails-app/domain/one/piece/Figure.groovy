@@ -19,7 +19,7 @@ class Figure {
         String getKey() { name() }
     }
     FigGender figGender
-    int figAge
+    Integer figAge
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     byte[] figPicture
