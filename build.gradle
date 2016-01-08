@@ -6,7 +6,7 @@ buildscript {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
-    dependencies {        
+    dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.5.0'
         classpath "org.grails.plugins:hibernate:4.3.10.5"
@@ -65,6 +65,7 @@ dependencies {
     compile "org.grails.plugins:scaffolding"
     compile 'org.grails.plugins:ajax-tags:1.0.0.RC1'
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
+    compile 'org.grails:grails-datastore-rest-client:5.0.0.RC2'
 
     runtime "org.grails.plugins:asset-pipeline"
     runtime 'mysql:mysql-connector-java:5.1.29'
@@ -72,6 +73,7 @@ dependencies {
 
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
+    testCompile "org.grails.plugins:hibernate"
 
     // Note: It is recommended to update to a more robust driver (Chrome, Firefox etc.)
     testRuntime 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.44.0'

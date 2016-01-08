@@ -1,5 +1,8 @@
 package one.piece
 
+import com.google.common.base.Strings
+import org.hibernate.sql.JoinType
+
 class Figure {
     String figName
     String figRace
@@ -16,7 +19,7 @@ class Figure {
         String getKey() { name() }
     }
     FigGender figGender
-    int figAge
+    Integer figAge
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     byte[] figPicture
@@ -37,5 +40,99 @@ class Figure {
         devilFruit nullable: true
         marine nullable: true
         pirate nullable: true
+    }
+
+    static Closure createWhereQuery(attribute) {
+        def query = {
+            createAlias("devilFruit", "df", JoinType.LEFT_OUTER_JOIN)
+            createAlias("animeEpisodeAppearance", "ae", JoinType.LEFT_OUTER_JOIN)
+            createAlias("mangaEpisodeAppearance", "me", JoinType.LEFT_OUTER_JOIN)
+            createAlias("pirate", "pi", JoinType.LEFT_OUTER_JOIN)
+            createAlias("pi.gangs", "ga", JoinType.LEFT_OUTER_JOIN)
+            or {
+                ilike('figName', "%${attribute}%")
+                ilike('figRace', "%${attribute}%")
+                ilike('figOrigin', "%${attribute}%")
+                ilike('df.defName', "%${attribute}%")
+                ilike('df.defType', "%${attribute}%")
+                ilike('ae.aneName', "%${attribute}%")
+                ilike('me.maeName', "%${attribute}%")
+                ilike('ga.ganName', "%${attribute}%")
+            }
+        }
+        query
+    }
+
+    static List<GString> getGangNames(String term) {
+        def gangs = Gang.findAllByGanNameIlike('%' + term + '%', [max: 10, sort: "ganName"])
+        def groupNames = []
+        groupNames.addAll(gangs.ganName)
+        groupNames = groupNames.collect { "$it (Group)" }
+        return groupNames
+    }
+
+    static List<GString> getFigureNames(String term) {
+        def figures = findAllByFigNameIlike('%' + term + '%', [max: 10, sort: "figName"])
+        def figNames = []
+        figNames.addAll(figures.figName)
+        figNames = figNames.collect { "$it (Figure)" }
+        figNames
+    }
+
+    static getGroup(String entity) {
+        ArrayList results
+        if ("marine".equalsIgnoreCase(entity)) {
+            results = Marine.list().figure.figName + ' (Group)'
+        } else if ("pirate".equalsIgnoreCase(entity)) {
+            results = Pirate.list().figure.figName + ' (Group)'
+        } else {
+            def gang = Gang.findByGanNameIlike(entity)
+            if (gang != null) {
+                results = gang.pirates.figure.figName + ' (Group)'
+            } else {
+                results = null
+            }
+        }
+        results
+    }
+
+    static getFigures(String entity) {
+        def figures = new ArrayList<Figure>()
+        if (entity.endsWith(' (Group)')) {
+            def group = entity.minus(' (Group)')
+            figures = getFiguresFromGroup(group)
+        } else if (entity.endsWith(' (Figure)')) {
+            def figureName = entity.minus(' (Figure)')
+            if (!Strings.isNullOrEmpty(figureName)) {
+                figures.add(findByFigNameIlike(figureName))
+            }
+        } else if (entity.endsWith(' (Attribute)')) {
+            def attribute = entity.minus(' (Attribute)')
+            def criteria = createCriteria()
+            Closure query = createWhereQuery(attribute)
+            figures = criteria.list(query)
+        }
+        return figures
+    }
+
+    private static getFiguresFromGroup(String group) {
+        ArrayList results
+        if (!Strings.isNullOrEmpty(group)) {
+            if ("marine".equalsIgnoreCase(group)) {
+                results = Marine.findAll().figure
+            } else if ("pirate".equalsIgnoreCase(group)) {
+                results = Pirate.findAll().figure
+            } else {
+                def gang = Gang.findByGanNameIlike(group)
+                if (gang != null) {
+                    results = gang.pirates.figure
+                } else {
+                    results = null
+                }
+            }
+        } else {
+            results = null
+        }
+        results
     }
 }
