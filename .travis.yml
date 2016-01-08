@@ -4,7 +4,8 @@ jdk:
   - oraclejdk7
 
 before_install:
-- rm -rf ~/.gvm
+- mysql -e "create database IF NOT EXISTS one_piece_test;" -uroot
+- mysql -e "create database IF NOT EXISTS one_piece_dev;" -uroot
 - curl -s http://get.sdkman.io | bash
 - echo sdkman_auto_answer=true > ~/.sdkman/etc/config
 - source "/home/travis/.sdkman/bin/sdkman-init.sh"
