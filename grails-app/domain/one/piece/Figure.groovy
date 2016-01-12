@@ -5,33 +5,20 @@ import org.hibernate.sql.JoinType
 
 class Figure {
     String figName
+    String figAlias
     String figRace
-    enum FigGender {
-        Male("M"), Female("F"), Other("O")
-        final String value
-
-        FigGender(String value) {
-            this.value = value
-        }
-
-        String toString() { value }
-
-        String getKey() { name() }
-    }
-    FigGender figGender
-    Integer figAge
-    String figOrigin
+    String figAge
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
-    byte[] figPicture
+    String figPicture
     DevilFruit devilFruit
     Marine figMarine
     Pirate figPirate
     static belongsTo = [marine: Marine, pirate: Pirate]
 
     static constraints = {
+    	figAlias nullable: true
         figRace nullable: true
         figAge nullable: true
-        figOrigin nullable: true
         mangaEpisodeAppearance nullable: true
         animeEpisodeAppearance nullable: true
         figPicture nullable: true

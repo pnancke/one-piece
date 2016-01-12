@@ -2,7 +2,8 @@ package one.piece
 
 class Pirate {
     Figure figure
-    String pirPosition
+    Gang gang
+    String pirPosition // if the first word of Occcupations are not pirate, then its the pirPosition
     Integer pirBounty
 
     static belongsTo = [Figure]
@@ -11,6 +12,6 @@ class Pirate {
     static constraints = {
         pirPosition nullable: true
         pirBounty nullable: true
-        gangs nullable: true
+        gang nullable: true
     }
 }
