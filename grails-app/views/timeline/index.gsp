@@ -160,55 +160,77 @@
 
 <body>
 
-<g:if test="${flash.message}">
-    <div class="message">${flash.message}</div>
-</g:if>
-<br/>
-<table class="figures">
-    <tr>
-        <td>
+	<g:if test="${flash.message}">
+		<div class="message">
+			${flash.message}
+		</div>
+	</g:if>
+	<br>
+	<form class="figures">
 
-        </td>
-        <td>
-            Selected figures:
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <div>
-                <form name="searchFigures" action="javascript:void(0);">
-                    <input type="text" id="figuresSearch" name="figureSearch"
-                           placeholder="Search for (Figure), (Group) or (Attribute)" size="35"/>
-                    <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
-                           value="Add"/>
-                </form>
-            </div>
-        </td>
-        <td valign="top">
-            <div id="figureList">
-            </div>
-        </td>
-    </tr>
-</table>
+		<table>
+			<tr>
+				<td>
+					<fieldset width="400">
+						<legend>Search for figures to add them:</legend>
+						<div>
+							<form name="searchFigures" action="javascript:void(0);">
+								<input type="text" id="figuresSearch" name="figureSearch"
+									placeholder="Search" /> <input type="submit"
+									onclick="searchFigure(document.getElementById('figuresSearch').value);"
+									value="Add" />
+							</form>
+						</div>
+					</fieldset>
+				</td>
+				<td>
+					<fieldset>
+						<legend>Selected figures:</legend>
+						<div id="figureList"></div>
+					</fieldset>
+				</td>
+			</tr>
+		</table>
 
-<input type="hidden" value="" id="figure_array_hidden" title=""/>
-<br/>
+	</form>
 
-<form id="travizSelect" name="travizSelect" action="javascript:void(0);">
-    <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
-        for="anime">Anime</label><br>
-    <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br>
-    <input type="submit" onclick="refreshTraviz();" value="Generate TRAViz"/>
-</form>
+	<input type="hidden" value="" id="figure_array_hidden" title="" />
+	<br />
 
-<div id="containerDiv"></div>
-<script type="text/javascript">
-    var traviz = new TRAViz("containerDiv", {
-        lineBreaks: false
+	<form id="travizSelect" name="travizSelect"
+		action="javascript:void(0);">
+		<input type="radio" id="anime" name="travizRadio"
+			value="travizDataAnime" checked="checked"><label for="anime">Anime</label>
+		<input type="radio" id="manga" name="travizRadio"
+			value="travizDataManga"> <label for="manga">Manga</label> <br>
+		<br />
+		<hr>
+		<br /> <input type="submit" onclick="refreshTraviz();"
+			value="Generate TRAViz" />
+
+		<div id="containerDiv"></div>
+		<br></br>
+		<fieldset>
+			<table>
+				<tr>
+					<td>
+						<div id="divPicture">Picture</div>
+					</td>
+					<td>
+						<div id="divInformation">Information</div>
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
+
+	<script type="text/javascript">
+	var traviz = new TRAViz("containerDiv", {
+		lineBreaks: false
     });
-</script>
+	</script>
 
-<div id="spinner"></div>
+	<div id="spinner"></div>
 
 </body>
 </html>
