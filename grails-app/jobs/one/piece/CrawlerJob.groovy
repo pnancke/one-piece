@@ -5,13 +5,19 @@ import org.apache.commons.logging.LogFactory
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 @Transactional
-class CrawlerService {
+class CrawlerJob {
     private static final log = LogFactory.getLog(this)
 
     public static final String SITE_CRAWLER = "http://onepiece.wikia.com/wiki/"
+    public static final String SITE = "http://onepiece.wikia.com"
     List<Figure> figures;
+
+    static triggers = {
+       // simple repeatInterval: 900000, startDelay: 10000
+    }
 
     /**
      * Process the URL and return the Info Box data.
@@ -19,16 +25,33 @@ class CrawlerService {
      * @return ArrayList with all infomation of page's Infobox
      * @throws IOException
      */
-    public static ArrayList<String> returnInfoBox(String URL) throws IOException {
-        Document doc = Jsoup.connect(URL).get()
-        def infoBoxData = new ArrayList<String>()
+    public static HashMap<String, Element> returnInfoBox(String URL) throws IOException {
+        Document doc = Jsoup.connect(SITE + URL).timeout(1000000).get()
+        boolean isDvFruitInfo = false;
+        def infoBoxData = new HashMap<String, Element>()
         // select documents by class "infobox", class of info boxes
         def iBox = doc.select("table.infobox").first();
         if (iBox != null) {
+            def citations = iBox.select("sup.reference");
+            if (citations != null) {
+                citations.remove();
+            }
             def boxContent = iBox.select("tr")
+            infoBoxData.put("Image", boxContent.select("img").first());
             for (it in boxContent) {
                 def charInfo = it.select("td")
-                infoBoxData.add(charInfo.text())
+                if (charInfo.size() > 1) {
+                    if (isDvFruitInfo) {
+                        infoBoxData.put("Devil Fruit", charInfo[1]);
+                        break;
+                    }
+                    infoBoxData.put(charInfo.first().text(), charInfo[1])
+                } else {
+
+                    if (charInfo.text().contains("Devil Fruit")) {
+                        isDvFruitInfo = true;
+                    }
+                }
             }
 
         }
@@ -40,13 +63,12 @@ class CrawlerService {
      * @throws IOException
      */
     public void getGangs() throws IOException {
-
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Pirate_Crews").get();
         // Get the content inside the table Gangs.
         def gangs = doc.select("table[title=Pirate Crews Navibox]").first().select("table.collapsible")
                 .select("td[style = text-align: left;]").select("a");
         for (index in gangs) {
-            def gang = new Gang(ganName: index.text()).save()
+            new Gang(ganName: index.text()).save()
         }
     }
 
@@ -73,6 +95,78 @@ class CrawlerService {
         }
     }
 
+    public void completeCharactersInfo() {
+        for (index in figures) {
+            def info = returnInfoBox(index.url);
+            if (info.get("Devil Fruit") != null) {
+                index.devilFruit = DevilFruit.findByDefName(info.get("Devil Fruit"));
+            }
+            if (info.get("Occupations:") != null && info.get("Affiliations:") != null) {
+
+                if (info.get("Occupations:").text().contains("Pirate")) {
+                    def pirate = new Pirate();
+                    if (info.get("Bounty:") != null) {
+                        pirate.pirBounty = info.get("Bounty:").text();
+                    }
+                    def gangs = info.get("Affiliations:").select("a");
+                    if (gangs != null) {
+                        for (it in gangs) {
+                            def gang = Gang.findByGanName(it.text());
+                            if (gang != null) {
+                                gang.addToPirates(pirate);
+                            }
+                        }
+                    }
+                    pirate.figure = index;
+                    pirate = pirate.save();
+                    index.pirate = pirate;
+                }
+                if (info.get("Affiliations:").text().contains("Marine")) {
+                    def marine = new Marine()
+                    marine.figure = index;
+                    marine.marRank = info.get("Occupations:").text();
+                    marine = marine.save();
+                    index.marine = marine;
+                }
+            }
+            if(info.get("Image") != null) {
+                index.figPicture = info.get("Image").attr("src");
+            }
+            index.save();
+
+        }
+    }
+
+    /**
+     * define races by character, humans are not redefined due more efficiency.
+     * @throws IOException
+     */
+    public void defineRace() throws IOException {
+        Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Characters_by_Type").get();
+        def races = doc.select("a.CategoryTreeLabel");
+        for (index in races) {
+            if (index.text() != "Humans") {
+                defineCharacterRace(index.text())
+            }
+        }
+
+    }
+
+    private void defineCharacterRace(String race) {
+        Document doc = Jsoup.connect(SITE_CRAWLER + "Category:" + race).get();
+        def characters = doc.getElementById("mw-pages").select("a");
+        for (index in characters) {
+            def fig = new Figure()
+            fig.figName = index.text();
+            def a = figures.indexOf(fig)
+            if (a > 0) {
+                fig = figures.get(a);
+                fig.figRace = race;
+                fig.save(flush: true);
+            }
+        }
+    }
+
     /**
      * get all characters name
      */
@@ -90,7 +184,13 @@ class CrawlerService {
         for (index in lineInformation) {
             def a = index.select("td")
             if (index.select("td") != null && a.size() > 0) {
-                figures.add(new Figure(figName: index.select("td").get(1).select("a").text(), figGender: "Male").save())
+                // Humans as default, then if not human is changed later.
+                def fig = new Figure();
+                fig.figName = index.select("td").get(1).select("a").text();
+                fig.figRace = "Humans";
+                fig.figGender = "Male";
+                fig.url = index.select("td").get(1).select("a").attr("href");
+                figures.add(fig.save())
             }
         }
     }
@@ -216,14 +316,22 @@ class CrawlerService {
     }
 
 
-    def serviceMethod() {
-        log.info("Process Start")
+    def execute() {
+        def startTime = System.currentTimeMillis();
+        log.info("Process Start");
         getDevilFruit();
-        log.info("Devil Fruit Done!")
+        log.info("Devil Fruit Done!");
         getGangs();
         log.info("Gangs Done!")
         getCharactersName();
-        log.info("Characters Name Done!")
+        log.info("Characters Name Done!");
         mapCharactersByApparition();
+        log.info("Characters mapped Done!");
+        completeCharactersInfo();
+        log.info("Characters info Done");
+        defineRace();
+        log.info("Races defined!");
+        def totalTime = System.currentTimeMillis() - startTime
+        log.info("Crawling Completed in " + totalTime.toString() + "!");
     }
 }

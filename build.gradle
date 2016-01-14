@@ -64,6 +64,7 @@ dependencies {
     compile "org.grails.plugins:scaffolding"
     compile 'org.grails.plugins:ajax-tags:1.0.0.RC1'
     compile "org.jsoup:jsoup:1.8.3"
+    compile 'org.grails.plugins:quartz:2.0.0'
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile 'org.grails:grails-datastore-rest-client:5.0.0.RC2'
 

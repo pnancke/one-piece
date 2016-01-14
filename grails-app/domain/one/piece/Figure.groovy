@@ -24,7 +24,7 @@ class Figure {
     int figAge
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
-    byte[] figPicture
+    String figPicture
     DevilFruit devilFruit
     Marine figMarine
     Pirate figPirate
