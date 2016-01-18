@@ -1,6 +1,5 @@
 package one.piece
 
-import org.apache.commons.lang.builder.EqualsBuilder
 
 import com.google.common.base.Strings
 import org.hibernate.sql.JoinType
