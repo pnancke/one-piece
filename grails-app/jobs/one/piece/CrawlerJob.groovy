@@ -16,7 +16,7 @@ class CrawlerJob {
     List<Figure> figures;
 
     static triggers = {
-       // simple repeatInterval: 900000, startDelay: 10000
+        // simple repeatInterval: 3600000, startDelay: 10000
     }
 
     /**
@@ -47,13 +47,11 @@ class CrawlerJob {
                     }
                     infoBoxData.put(charInfo.first().text(), charInfo[1])
                 } else {
-
                     if (charInfo.text().contains("Devil Fruit")) {
                         isDvFruitInfo = true;
                     }
                 }
             }
-
         }
         return infoBoxData
     }
@@ -77,13 +75,11 @@ class CrawlerJob {
      * @throws IOException
      */
     public void getDevilFruit() throws IOException {
-
         def defFruitType;
         Document doc = Jsoup.connect(SITE_CRAWLER + "Devil_Fruit").get();
         // Get the content inside the table Devil Fruit, witch is the type and
         // name of fruits, separated by type.
         def fruitTable = doc.select("table[title=Devil Fruits Navibox]").first().select("table.collapsible");
-
         for (index in fruitTable) {
             // get the type of the fruits.
             defFruitType = index.select("th").text();
@@ -95,11 +91,16 @@ class CrawlerJob {
         }
     }
 
+    /**
+     * Complete the information for each character crawled, with the information on onepiece.wikia, based in the infobox.
+     */
     public void completeCharactersInfo() {
+        def i = 0;
         for (index in figures) {
+            i++;
             def info = returnInfoBox(index.url);
             if (info.get("Devil Fruit") != null) {
-                index.devilFruit = DevilFruit.findByDefName(info.get("Devil Fruit"));
+                index.devilFruit = DevilFruit.findByDefName(info.get("Devil Fruit").text());
             }
             if (info.get("Occupations:") != null && info.get("Affiliations:") != null) {
 
@@ -108,6 +109,7 @@ class CrawlerJob {
                     if (info.get("Bounty:") != null) {
                         pirate.pirBounty = info.get("Bounty:").text();
                     }
+                    pirate.pirPosition = info.get("Occupations:").text();
                     def gangs = info.get("Affiliations:").select("a");
                     if (gangs != null) {
                         for (it in gangs) {
@@ -129,11 +131,19 @@ class CrawlerJob {
                     index.marine = marine;
                 }
             }
-            if(info.get("Image") != null) {
+            if (info.get("Age:") != null) {
+                index.figAge = info.get("Age:").text();
+            }
+            if (info.get("Status:") != null) {
+                index.figStatus = info.get("Status:").text();
+            }
+            if (info.get("Image") != null) {
                 index.figPicture = info.get("Image").attr("src");
             }
             index.save();
-
+            if (i % 10 == 0) {
+                log.info(i + " of " + figures.size() + "Characters Done!")
+            }
         }
     }
 
@@ -152,7 +162,12 @@ class CrawlerJob {
 
     }
 
-    private void defineCharacterRace(String race) {
+    /**
+     * Get characters races by specific race page.
+     * @throws IOException
+     * @param race
+     */
+    private void defineCharacterRace(String race) throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:" + race).get();
         def characters = doc.getElementById("mw-pages").select("a");
         for (index in characters) {
@@ -172,13 +187,11 @@ class CrawlerJob {
      */
     public void getCharactersName() {
         figures = new ArrayList<Figure>()
-
         addCharacters("List_of_Canon_Characters")
         addCharacters("List_of_Non_Canon_Characters")
     }
 
     private void addCharacters(String URL) {
-
         Document doc = Jsoup.connect(SITE_CRAWLER + URL).get();
         def lineInformation = doc.select("table.wikitable").first().select("tr");
         for (index in lineInformation) {
@@ -188,13 +201,15 @@ class CrawlerJob {
                 def fig = new Figure();
                 fig.figName = index.select("td").get(1).select("a").text();
                 fig.figRace = "Humans";
-                fig.figGender = "Male";
                 fig.url = index.select("td").get(1).select("a").attr("href");
                 figures.add(fig.save())
             }
         }
     }
 
+    /**
+     * Get the Episodes and Chapters and the Characters who are in.
+     */
     private void mapCharactersByApparition() {
         def r = true
         def i = 1

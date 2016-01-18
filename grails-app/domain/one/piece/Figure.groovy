@@ -3,20 +3,8 @@ package one.piece
 class Figure {
     String figName
     String figRace
-    enum FigGender {
-        Male("M"), Female("F"), Other("O")
-        final String value
-
-        FigGender(String value) {
-            this.value = value
-        }
-
-        String toString() { value }
-
-        String getKey() { name() }
-    }
-    FigGender figGender
-    int figAge
+    String figAge
+    String figStatus
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     String figPicture
@@ -53,5 +41,6 @@ class Figure {
         devilFruit nullable: true
         marine nullable: true
         pirate nullable: true
+        figStatus nullable: true
     }
 }
