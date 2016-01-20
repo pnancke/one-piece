@@ -1,33 +1,38 @@
 package one.piece
 
+
 import com.google.common.base.Strings
 import org.hibernate.sql.JoinType
 
 class Figure {
     String figName
     String figRace
-    enum FigGender {
-        Male("M"), Female("F"), Other("O")
-        final String value
-
-        FigGender(String value) {
-            this.value = value
-        }
-
-        String toString() { value }
-
-        String getKey() { name() }
-    }
-    FigGender figGender
-    Integer figAge
+    String figAge
+    String figStatus
     String figOrigin
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
-    byte[] figPicture
+    String figPicture
     DevilFruit devilFruit
     Marine figMarine
     Pirate figPirate
     static belongsTo = [marine: Marine, pirate: Pirate]
+    String url
+    static transients = ['url']
 
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        Figure figure = (Figure) o
+
+        if (figName != figure.figName) return false
+
+        return true
+    }
+
+    int hashCode() {
+        return (figName != null ? figName.hashCode() : 0)
+    }
     static constraints = {
         figRace nullable: true
         figAge nullable: true
@@ -40,6 +45,7 @@ class Figure {
         devilFruit nullable: true
         marine nullable: true
         pirate nullable: true
+        figStatus nullable: true
     }
 
     static Closure createWhereQuery(attribute) {
