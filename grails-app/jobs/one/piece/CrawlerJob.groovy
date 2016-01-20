@@ -16,7 +16,7 @@ class CrawlerJob {
     List<Figure> figures;
 
     static triggers = {
-        // simple repeatInterval: 3600000, startDelay: 10000
+        simple repeatInterval: 3600000, startDelay: 10000
     }
 
     /**
