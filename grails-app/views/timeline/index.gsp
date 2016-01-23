@@ -171,7 +171,7 @@
 		<table>
 			<tr>
 				<td>
-					<fieldset width="400">
+					<fieldset>
 						<legend>Search for figures to add them:</legend>
 						<div>
 							<form name="searchFigures" action="javascript:void(0);">

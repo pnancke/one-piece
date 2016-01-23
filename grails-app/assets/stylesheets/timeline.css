@@ -15,7 +15,9 @@ table.figures {
 }
 
 fieldset {
-    border: shown;
+	min-width: 300px;
+	min-height: 200px;
+    border: hidden;
 }
 
 #travizSelect {
