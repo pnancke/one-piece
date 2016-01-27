@@ -6,6 +6,7 @@ import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 
 @Transactional
 class CrawlerJob {
@@ -16,7 +17,7 @@ class CrawlerJob {
     List<Figure> figures;
 
     static triggers = {
-        // simple repeatInterval: 3600000, startDelay: 10000
+        simple repeatInterval: 3600000, startDelay: 10000
     }
 
     /**
@@ -57,6 +58,32 @@ class CrawlerJob {
     }
 
     /**
+     * fetch all episodes ratings on IMdB
+     * @throws IOException
+     */
+    public List<AnimeEpisode> getRatingForEpisode() throws IOException {
+        List<AnimeEpisode> episodes = new LinkedList<AnimeEpisode>()
+        Document doc = Jsoup.connect("http://www.imdb.com/title/tt0388629/epdate").userAgent("Chrome").maxBodySize(0).timeout(900000).get();
+        def elementRatings = doc.select("h4:contains(Rated Episodes)").first().nextElementSibling();
+        elementRatings = elementRatings.select("tr");
+        for (index in elementRatings) {
+            def episodeRating = index.select("td");
+            if (episodeRating != null && episodeRating.size() > 0 && episodeRating.get(0).text().contains('.')) {
+                String[] episodeSeason = episodeRating.get(0).text().tokenize('.');
+                AnimeEpisode episode = new AnimeEpisode();
+                episodeSeason[1] = episodeSeason[1].replace(String.valueOf((char) 160), " ").trim();
+                episode.aneSeasonNr = Integer.parseInt(episodeSeason[0].trim());
+                episode.aneEpisodeNr = Integer.parseInt(episodeSeason[1]);
+                episode.aneNumVotes = Integer.parseInt(episodeRating.get(3).text());
+                episode.aneRate = Float.parseFloat(episodeRating.get(2).text());
+                episode.aneIMdBUrl = "http://www.imdb.com" + episodeRating.get(1).select("a").attr("href")
+                episodes.add(episode);
+            }
+        }
+        return episodes;
+    }
+
+    /**
      Get the name of all Gangs portrayed in Series and Manga
      * @throws IOException
      */
@@ -69,13 +96,13 @@ class CrawlerJob {
             new Gang(ganName: index.text()).save()
         }
     }
-
     /**
      * get the name and type of all Devil Fruits who appear on Mangas or Episodes of One Piece
      * @throws IOException
      */
     public void getDevilFruit() throws IOException {
         def defFruitType;
+        String defAbility = null;
         Document doc = Jsoup.connect(SITE_CRAWLER + "Devil_Fruit").get();
         // Get the content inside the table Devil Fruit, witch is the type and
         // name of fruits, separated by type.
@@ -83,17 +110,49 @@ class CrawlerJob {
         for (index in fruitTable) {
             // get the type of the fruits.
             defFruitType = index.select("th").text();
+            Elements fruitsAbilities = getDevilFruitAbilities(index.select("th").first().select("a").attr("href"));
+
             def fruitsName = index.select("td[style = text-align: left;]").select("a");
             for (fruitName in fruitsName) {
-                new DevilFruit(defName: fruitName.text(), defType: defFruitType).save()
+                if (fruitsAbilities != null && fruitsAbilities.size() > 0) {
+                    def fruitAbility = fruitsAbilities.select("li:contains(" + fruitName.text() + "");
+                    if (fruitAbility != null) {
+                        int removeBegin = fruitAbility.text().indexOf("(")
+                        int removeEnd = fruitAbility.text().indexOf(")");
+                        def fruitInformation = fruitAbility.text();
+                        if (removeBegin > 0 || removeEnd > 0) {
+                            fruitInformation = fruitAbility.text().replace(fruitAbility.text().substring(removeBegin, removeEnd + 1), "");
+                        }
+                        String[] f = fruitInformation.tokenize(":");
+                        if (f.size() > 1) {
+                            defAbility = f[1].trim();
+                        }
+                    }
+                }
+                new DevilFruit(defName: fruitName.text(), defType: defFruitType, defMeaning: defAbility).save()
+                defAbility = null;
             }
 
         }
     }
 
-    /**
-     * Complete the information for each character crawled, with the information on onepiece.wikia, based in the infobox.
-     */
+    private Elements getDevilFruitAbilities(String URL) throws IOException {
+        Document doc = Jsoup.connect(SITE + URL).get();
+        Elements fruits = new Elements();
+        def fruit = doc.select("h2:contains(List of Known)").first();
+        if (fruit != null) {
+            fruit = fruit.nextElementSibling();
+            while (fruit.nextElementSibling().tagName() != "h2") {
+                fruits.addAll(fruit.select("li"));
+                fruit = fruit.nextElementSibling();
+            }
+            return fruits;
+        }
+    }
+
+/**
+ * Complete the information for each character crawled, with the information on onepiece.wikia, based in the infobox.
+ */
     public void completeCharactersInfo() {
         def i = 0;
         for (index in figures) {
@@ -142,15 +201,15 @@ class CrawlerJob {
             }
             index.save();
             if (i % 10 == 0) {
-                log.info(i + " of " + figures.size() + "Characters Done!")
+                log.info(i + " of " + figures.size() + " Characters Done!")
             }
         }
     }
 
-    /**
-     * define races by character, humans are not redefined due more efficiency.
-     * @throws IOException
-     */
+/**
+ * define races by character, humans are not redefined due more efficiency.
+ * @throws IOException
+ */
     public void defineRace() throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Characters_by_Type").get();
         def races = doc.select("a.CategoryTreeLabel");
@@ -162,11 +221,11 @@ class CrawlerJob {
 
     }
 
-    /**
-     * Get characters races by specific race page.
-     * @throws IOException
-     * @param race
-     */
+/**
+ * Get characters races by specific race page.
+ * @throws IOException
+ * @param race
+ */
     private void defineCharacterRace(String race) throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:" + race).get();
         def characters = doc.getElementById("mw-pages").select("a");
@@ -182,9 +241,9 @@ class CrawlerJob {
         }
     }
 
-    /**
-     * get all characters name
-     */
+/**
+ * get all characters name
+ */
     public void getCharactersName() {
         figures = new ArrayList<Figure>()
         addCharacters("List_of_Canon_Characters")
@@ -207,14 +266,15 @@ class CrawlerJob {
         }
     }
 
-    /**
-     * Get the Episodes and Chapters and the Characters who are in.
-     */
+/**
+ * Get the Episodes and Chapters and the Characters who are in.
+ */
     private void mapCharactersByApparition() {
         def r = true
         def i = 1
+        def episodes = getRatingForEpisode();
         while (r) {
-            r = getCharactersEpisode(SITE_CRAWLER + "Episode_" + i.toString(), i)
+            r = getCharactersEpisode(SITE_CRAWLER + "Episode_" + i.toString(), i, episodes)
             i++
             if (i % 10 == 0) {
                 log.info("until " + i + "th Episode Done!")
@@ -231,17 +291,24 @@ class CrawlerJob {
         }
     }
 
-    /**
-     * saves in the database the episode's name and the characters of these episode.
-     * @param URL
-     * @param epNumber
-     */
-    public boolean getCharactersEpisode(String URL, int epNumber) {
+/**
+ * saves in the database the episode's name and the characters of these episode.
+ * @param URL
+ * @param epNumber
+ */
+    public boolean getCharactersEpisode(String URL, int epNumber, List<AnimeEpisode> episodes) {
         int attempt = 0
         try {
-            Document doc = Jsoup.connect(URL).timeout(1000000).get()
-
-            def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save(flush: true, failOnError: true)
+            Document doc = Jsoup.connect(URL).timeout(1000000).get();
+            def episode;
+            if (episodes.size() > epNumber) {
+                episode = episodes.get(epNumber - 1);
+            } else {
+                episode = new AnimeEpisode();
+            }
+            episode.aneName = doc.select("th").first().text();
+            episode.aneNumber = epNumber;
+            episode.save(flush: true, failOnError: true)
             Figure fig;
             def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
             for (index in charTable) {
@@ -304,10 +371,9 @@ class CrawlerJob {
                 }
             }
             return true
-
         }
         catch (NullPointerException ex) {
-            log.error("Fail to catch Episode number: " + chNumber + " on link: " + URL);
+            log.error("Fail to catch Chapter number: " + chNumber + " on link: " + URL);
             return true;
         }
         // catch if the web page doesn't exist, meaning that we already have the last chapter
@@ -349,4 +415,5 @@ class CrawlerJob {
         def totalTime = System.currentTimeMillis() - startTime
         log.info("Crawling Completed in " + totalTime.toString() + "!");
     }
+
 }
