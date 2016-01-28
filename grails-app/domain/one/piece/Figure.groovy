@@ -88,13 +88,13 @@ class Figure {
     static getGroup(String entity) {
         ArrayList results
         if ("marine".equalsIgnoreCase(entity)) {
-            results = Marine.list().figure.figName + ' (Group)'
+            results = Marine.list().figure.figName
         } else if ("pirate".equalsIgnoreCase(entity)) {
-            results = Pirate.list().figure.figName + ' (Group)'
+            results = Pirate.list().figure.figName
         } else {
             def gang = Gang.findByGanNameIlike(entity)
             if (gang != null) {
-                results = gang.pirates.figure.figName + ' (Group)'
+                results = gang.pirates.figure.figName
             } else {
                 results = null
             }
