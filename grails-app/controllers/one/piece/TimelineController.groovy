@@ -32,4 +32,82 @@ class TimelineController {
         }
         render result.toString()
     }
+	
+	def getFigureInformation(String term){
+		def data = [:]
+		def jsonBuilder
+		def results
+		
+		def successResponse = true
+		log.info("search for: " + term)
+		def results = [];
+		
+		if (term == null) {
+			successResponse = false
+		} else if (term.contains(' (Group)')) {
+			def entity = Figure.getGroup(term.minus(' (Group)')).minus(' (Group)')
+			jsonBuilder = new groovy.json.JsonBuilder(entity)
+			results = entity.size()
+			
+		} else if (term.contains(' (Figure)')) {
+			def entity = term.minus(' (Figure)')
+			def figure = Figure.findByFigNameIlike(entity)
+			if (figure == null) {
+				successResponse = false
+			} else {
+
+				if(figure.figPicture != null)
+					data.put("Picture", figure.figPicture)
+				if(figure.figName != null)
+					data.put("Name", figure.figName)
+				if(figure.figRace != null)
+					data.put("Race", figure.figRace)
+				if(figure.figAge != null)
+					data.put("Age", figure.figAge)
+				if(figure.figStatus != null)
+					data.put("Status", figure.figStatus)
+				if(figure.figOrigin != null)
+					data.put("Origin", figure.figOrigin)
+				
+				if(figure.figMarine != null){
+					Marine mari = figure.figMarine
+					data.put("Occupations", mari.marRank)
+				}
+				
+				if(figure.figPirate != null){
+					Pirate pir = figure.figPirate
+					data.put("Position", pir.pirPosition)
+					data.put("Bounty", pir.pirBounty)
+				}
+					
+				if(figure.devilFruit != null){
+					DevilFruit devf = figure.devilFruit
+					data.put("Devilfruit", devf.defName)
+				}
+				
+				jsonBuilder = new groovy.json.JsonBuilder(data)
+				results = 1;
+				
+			}
+		} else if (term.endsWith(' (Attribute)')) {
+			def attribute = term.minus(' (Attribute)')
+			def criteria = Figure.createCriteria()
+			Closure query = Figure.createWhereQuery(attribute)
+			def figures = criteria.list(query)
+			if (figures == null || figures.isEmpty()) {
+				successResponse = false
+			} else {
+				jsonBuilder = new groovy.json.JsonBuilder(figures)
+				results = figures.size()
+				log.info("TEST ")
+			}
+		} else {
+		successResponse = false
+		}
+		
+		def response = HttpUtils.buildJsonResponse(successResponse, jsonBuilder.toString(), results).toString()
+		
+		render response
+	}
+	
 }
