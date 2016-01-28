@@ -67,13 +67,15 @@ class FigureController {
 
         log.info("results: " + results)
         def responseData
+        def resultCount = 0
         if (!successResponse) {
             responseData = ""
         } else {
             responseData = term
+            resultCount = 1
         }
 
-        def response = HttpUtils.buildJsonResponse(successResponse, responseData).toString()
+        def response = HttpUtils.buildJsonResponse(successResponse, responseData, resultCount).toString()
         log.info("response: " + response)
         render response
     }
