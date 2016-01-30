@@ -4,7 +4,7 @@ import groovy.json.JsonBuilder
 
 public class HttpUtils {
 
-    static buildJsonResponse(successResponse, String term, int resultCount) {
+    static buildJsonResponse(successResponse, term, int resultCount) {
         def json = new JsonBuilder()
 
         json {
@@ -14,4 +14,5 @@ public class HttpUtils {
         }
         json
     }
+	
 }
