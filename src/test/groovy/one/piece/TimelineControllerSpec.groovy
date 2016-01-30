@@ -8,7 +8,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(TimelineController)
-@Mock([Figure, AnimeEpisode, MangaEpisode])
+@Mock([Figure, Marine, Pirate, Gang, AnimeEpisode, MangaEpisode])
 class TimelineControllerSpec extends Specification {
     public static final String FIGURE_1_NAME = "Figure1"
     public static final String FIGURE_2_NAME = "Figure2"
@@ -29,10 +29,8 @@ class TimelineControllerSpec extends Specification {
 	public static final String MARINE_LOWERCASE = "marine"
 	public static final String PIRATE = "Pirate"
 	public static final String PIRATE_LOWERCASE = "pirate"
-	public static final String GANG = "Gang"
 	public static final String GANG_1_NAME = "Gang1-105109"
 	public static final String GANG_1_NAME_LOWERCASE = "gang1-105109"
-	public static final String GANG_1_NAME_SHORT = "Gang1"
 
     def setup() {
     }
@@ -216,11 +214,11 @@ class TimelineControllerSpec extends Specification {
 
     void "test getFigureInformation gang"() {
         def figure = new Figure(figName: FIG_1_NAME).save(failOnError: true)
-        def gang = new Gang(ganName: GANG).save(failOnError: true)
+        def gang = new Gang(ganName: GANG_1_NAME).save(failOnError: true)
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
-        controller.getFigureInformation(GANG + " (Group)")
+        controller.getFigureInformation(GANG_1_NAME + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
@@ -228,7 +226,7 @@ class TimelineControllerSpec extends Specification {
 
     void "test getFigureInformation gang ignores case"() {
         def figure = new Figure(figName: FIG_1_NAME).save(failOnError: true)
-        def gang = new Gang(ganName: GANG).save(failOnError: true)
+        def gang = new Gang(ganName: GANG_1_NAME).save(failOnError: true)
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
