@@ -1,6 +1,7 @@
 package one.piece
 
 import com.google.common.base.Strings
+import one.piece.util.HttpUtils
 import one.piece.util.TravizUtils
 import com.google.common.base.Joiner
 
@@ -35,8 +36,7 @@ class TimelineController {
 	
 	def getFigureInformation(String term){
 		def data = [:]
-		def jsonBuilder
-		def results
+		def resultCount = 0
 		
 		def successResponse = true
 		log.info("search for: " + term)
@@ -45,8 +45,8 @@ class TimelineController {
 			successResponse = false
 		} else if (term.contains(' (Group)')) {
 			def entity = Figure.getGroup(term.minus(' (Group)')).minus(' (Group)')
-			jsonBuilder = new groovy.json.JsonBuilder(entity)
-			results = entity.size()
+			data.put("Group", entity)
+			resultCount = entity.size()
 			
 		} else if (term.contains(' (Figure)')) {
 			def entity = term.minus(' (Figure)')
@@ -84,8 +84,8 @@ class TimelineController {
 					data.put("Devilfruit", devf.defName)
 				}
 				
-				jsonBuilder = new groovy.json.JsonBuilder(data)
-				results = 1;
+				resultCount = 1;
+				log.info("HASHMAP    "+data)
 				
 			}
 		} else if (term.endsWith(' (Attribute)')) {
@@ -96,16 +96,16 @@ class TimelineController {
 			if (figures == null || figures.isEmpty()) {
 				successResponse = false
 			} else {
-				jsonBuilder = new groovy.json.JsonBuilder(figures)
-				results = figures.size()
+				data.put("Attribute",figures)
+				resultCount = figures.size()
 				log.info("TEST ")
 			}
 		} else {
 		successResponse = false
 		}
-		
-		def response = HttpUtils.buildJsonResponse(successResponse, jsonBuilder.toString(), results).toString()
-		
+
+		def response = HttpUtils.buildJsonResponse(successResponse, data, resultCount).toString()
+		log.info("RESPONSE   _________________________________________\n"+response+"\n______________________________________")
 		render response
 	}
 	
