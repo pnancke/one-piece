@@ -105,7 +105,6 @@ class TimelineController {
 		}
 
 		def response = HttpUtils.buildJsonResponse(successResponse, data, resultCount).toString()
-		log.info("RESPONSE   _________________________________________\n"+response+"\n______________________________________")
 		render response
 	}
 	
