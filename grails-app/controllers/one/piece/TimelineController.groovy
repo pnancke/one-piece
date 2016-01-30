@@ -40,7 +40,6 @@ class TimelineController {
 		
 		def successResponse = true
 		log.info("search for: " + term)
-		def results = [];
 		
 		if (term == null) {
 			successResponse = false
