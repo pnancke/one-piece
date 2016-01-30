@@ -171,7 +171,7 @@ class TimelineControllerSpec extends Specification {
     }
 
     void "test getFigureInformation marine"() {
-        def figure = new Figure(figName: FIG_1_NAME.save(failOnError: true)
+        def figure = new Figure(figName: FIG_1_NAME).save(failOnError: true)
         new Marine(figure: figure).save(failOnError: true)
 
         when:
@@ -215,7 +215,7 @@ class TimelineControllerSpec extends Specification {
     }
 
     void "test getFigureInformation gang"() {
-        def figure = new Figure(figName: FIG_1_NAME.save(failOnError: true)
+        def figure = new Figure(figName: FIG_1_NAME).save(failOnError: true)
         def gang = new Gang(ganName: GANG).save(failOnError: true)
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
@@ -227,7 +227,7 @@ class TimelineControllerSpec extends Specification {
     }
 
     void "test getFigureInformation gang ignores case"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
+        def figure = new Figure(figName: FIG_1_NAME).save(failOnError: true)
         def gang = new Gang(ganName: GANG).save(failOnError: true)
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
