@@ -186,7 +186,7 @@ class TimelineControllerSpec extends Specification {
         new Marine(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(MARINE_LOWERCASE + " (Group)")
+        controller.getFigureInformation(MARINE_LOWERCASE + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
@@ -197,7 +197,7 @@ class TimelineControllerSpec extends Specification {
         new Pirate(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(PIRATE + " (Group)")
+        controller.getFigureInformation(PIRATE + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
@@ -208,7 +208,7 @@ class TimelineControllerSpec extends Specification {
         new Pirate(figure: figure).save(failOnError: true)
 
         when:
-        controller.search(PIRATE_LOWERCASE + " (Group)")
+        controller.getFigureInformation(PIRATE_LOWERCASE + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
@@ -220,7 +220,7 @@ class TimelineControllerSpec extends Specification {
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
-        controller.search(GANG + " (Group)")
+        controller.getFigureInformation(GANG + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
@@ -232,7 +232,7 @@ class TimelineControllerSpec extends Specification {
         new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
 
         when:
-        controller.search(GANG_1_NAME_LOWERCASE + " (Group)")
+        controller.getFigureInformation(GANG_1_NAME_LOWERCASE + " (Group)")
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
