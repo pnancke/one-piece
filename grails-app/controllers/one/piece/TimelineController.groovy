@@ -98,7 +98,6 @@ class TimelineController {
 			} else {
 				data.put("Attribute",figures)
 				resultCount = figures.size()
-				log.info("TEST ")
 			}
 		} else {
 		successResponse = false
