@@ -16,21 +16,21 @@ class TimelineControllerSpec extends Specification {
     public static final int ANIME_2_NUMBER = 2
     public static final int MANGA_1_NUMBER = 1
     public static final int MANGA_2_NUMBER = 2
-	
-	public static final String FIG_1_NAME = "Fig1-093605"
-	public static final String FIG_1_NAME_LOWERCASE = "fig1-093605"
-	public static final String FIG_1_NAME_SHORT = "Fig1"
-	public static final String FIG_1_NAME_SHORT_LOWERCASE = "fig1"
-	public static final String FIG_2_NAME = "Fig2-093608"
-	public static final String FIG_NAME_SHORT = "fig"
-	public static final String FIG_NAME_NOT_EXISTS = "Fig3-093945"
-	public static final String FOO = "foo"
-	public static final String MARINE = "Marine"
-	public static final String MARINE_LOWERCASE = "marine"
-	public static final String PIRATE = "Pirate"
-	public static final String PIRATE_LOWERCASE = "pirate"
-	public static final String GANG_1_NAME = "Gang1-105109"
-	public static final String GANG_1_NAME_LOWERCASE = "gang1-105109"
+
+    public static final String FIG_1_NAME = "Fig1-093605"
+    public static final String FIG_1_NAME_LOWERCASE = "fig1-093605"
+    public static final String FIG_1_NAME_SHORT = "Fig1"
+    public static final String FIG_1_NAME_SHORT_LOWERCASE = "fig1"
+    public static final String FIG_2_NAME = "Fig2-093608"
+    public static final String FIG_NAME_SHORT = "fig"
+    public static final String FIG_NAME_NOT_EXISTS = "Fig3-093945"
+    public static final String FOO = "foo"
+    public static final String MARINE = "Marine"
+    public static final String MARINE_LOWERCASE = "marine"
+    public static final String PIRATE = "Pirate"
+    public static final String PIRATE_LOWERCASE = "pirate"
+    public static final String GANG_1_NAME = "Gang1-105109"
+    public static final String GANG_1_NAME_LOWERCASE = "gang1-105109"
 
     def setup() {
     }
@@ -139,15 +139,15 @@ class TimelineControllerSpec extends Specification {
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"
     }
-	
-	    void "test getFigureInformation figure exists"() {
+
+    void "test getFigureInformation figure exists"() {
         new Figure(figName: FIG_1_NAME).save(failOnError: true)
 
         when:
         controller.getFigureInformation(FIG_1_NAME + " (Figure)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Name":"'+FIG_1_NAME+'"}}'
+        response.text == '{"success":true,"count":1,"data":{"Name":"' + FIG_1_NAME + '","SearchTerm":"' + FIG_1_NAME + ' (Figure)"}}'
     }
 
     void "test getFigureInformation ignores case"() {
@@ -157,7 +157,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(FIG_1_NAME_LOWERCASE + " (Figure)")
 
         then:
-		response.text == '{"success":true,"count":1,"data":{"Name":"'+FIG_1_NAME+'"}}'
+        response.text == '{"success":true,"count":1,"data":{"Name":"' + FIG_1_NAME + '","SearchTerm":"' + FIG_1_NAME_LOWERCASE + ' (Figure)"}}'
     }
 
     void "test getFigureInformation empty response when not found"() {
@@ -165,7 +165,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(FOO)
 
         then:
-        response.text == '{"success":false,"count":0,"data":{}}'
+        response.text == '{"success":false,"count":0,"data":{"SearchTerm":"' + FOO + '"}}'
     }
 
     void "test getFigureInformation marine"() {
@@ -176,7 +176,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(MARINE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + MARINE + ' (Group)"}}'
     }
 
     void "test getFigureInformation marine ignores case"() {
@@ -187,7 +187,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(MARINE_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + MARINE_LOWERCASE + ' (Group)"}}'
     }
 
     void "test getFigureInformation pirate"() {
@@ -198,7 +198,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(PIRATE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + PIRATE + ' (Group)"}}'
     }
 
     void "test getFigureInformation pirate ignores case"() {
@@ -209,7 +209,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(PIRATE_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + PIRATE_LOWERCASE + ' (Group)"}}'
     }
 
     void "test getFigureInformation gang"() {
@@ -221,7 +221,7 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(GANG_1_NAME + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + GANG_1_NAME + ' (Group)"}}'
     }
 
     void "test getFigureInformation gang ignores case"() {
@@ -233,7 +233,6 @@ class TimelineControllerSpec extends Specification {
         controller.getFigureInformation(GANG_1_NAME_LOWERCASE + " (Group)")
 
         then:
-        response.text == '{"success":true,"count":1,"data":{"Group":["' + FIG_1_NAME + '"]}}'
+        response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + GANG_1_NAME_LOWERCASE + ' (Group)"}}'
     }
-	
 }

@@ -1,12 +1,21 @@
 <!doctype html>
 <html>
 <head>
-    <asset:javascript src="traviz-min.js"/>
-    <asset:javascript src="spin.js"/>
-    <asset:stylesheet src="timeline.css" media="screen, projection"/>
+    <asset:javascript src="jquery.min.js"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <asset:javascript src="jquery-ui.js"/>
+    <asset:javascript src="jquery.qtip.min.js"/>
+    <asset:javascript src="raphael.js"/>
+    <asset:javascript src="TRAVizConnection.js"/>
+    <asset:javascript src="TRAVizGraph.js"/>
+    <asset:javascript src="TRAVizAligner.js"/>
+    <asset:javascript src="TRAViz.js"/>
+    <asset:javascript src="TRAVizConfig.js"/>
+    <asset:javascript src="jquery.simpletip-1.3.1.min.js"/>
     <asset:stylesheet src="traviz.css" media="screen, projection"/>
+    <asset:javascript src="spin.js"/>
+    <asset:stylesheet src="timeline.css" media="screen, projection"/>
+
     <script>
         $(function () {
             $("#figuresSearch").autocomplete({
@@ -54,27 +63,67 @@
         }
 
 
-        function addFigure(input) {
+        function addFigure(info) {
             var figureHiddenFieldSelector = $('#figure_array_hidden');
             var figures = figureHiddenFieldSelector.val();
-            var newDiv;
+            var newFigureTd;
+            var searchTerm = info['SearchTerm'];
+            delete info['SearchTerm'];
             if (figures == undefined || figures == "") {
-                figureHiddenFieldSelector.val(input);
-                newDiv = document.createElement('div');
-                $('#figureList').append(newDiv);
-                newDiv.innerHTML = '<input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
-                        + input;
+                figureHiddenFieldSelector.val(searchTerm);
+                newFigureTd = document.createElement('td');
+                $('#figureList').append(newFigureTd);
+                newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                        + searchTerm + '</div>';
             } else {
                 var figureArray = figureHiddenFieldSelector.val().split(",");
-                if ($.inArray(input, figureArray) == -1) {
-                    figureArray.push(input);
+                if ($.inArray(searchTerm, figureArray) == -1) {
+                    figureArray.push(searchTerm);
                     figureHiddenFieldSelector.val(figureArray);
-                    newDiv = document.createElement('div');
-                    $('#figureList').append(newDiv);
-                    newDiv.innerHTML = '<input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
-                            + input;
+                    newFigureTd = document.createElement('td');
+                    newFigureTd.id = searchTerm;
+                    $('#figureList').append(newFigureTd);
+                    newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                            + searchTerm + '</div>';
                 }
             }
+            var tiptext = "";
+            tiptext += '<div id="infoBoxParent" align="center">';
+            if (info['Picture'] != null) {
+                tiptext += '<img src="' + info['Picture'] + '" alt="" class="photo left" align="middle" style="max-height: 200px; max-width: 100%;"/>';
+                delete info['Picture'];
+            }
+            tiptext += '<div id="infoBoxFacts" align="left">';
+            tiptext += "<table>";
+
+            var key;
+            for (key in info) {
+                tiptext += "<tr>";
+                tiptext += "<td style='padding:5px;text-align:left;'>" + key + "</td>";
+                tiptext += "<td style='padding:5px;text-align:right;'>" + info[key] + "</td>";
+                tiptext += "</tr>";
+            }
+            tiptext += "</div></div></table>";
+            $(document.getElementById(searchTerm)).qtip({
+                content: {
+                    text: tiptext,
+                    title: {
+                        text: "<div>" + searchTerm + "</div>",
+                        button: '&#10006'
+                    }
+                },
+                show: {
+                    when: 'click',
+                    solo: true
+                },
+                hide: {
+                    when: {event: 'click'}
+                },
+                style: {
+                    tip: true,
+                    border: {width: 0, radius: 3}
+                }
+            });
         }
 
         function removeFigure(button) {
@@ -102,7 +151,7 @@
             } else {
                 $.ajax({
                     dataType: "json",
-                    url: "${g.createLink(controller: "figure", action: "search")}?term=" + figureName,
+                    url: "${g.createLink(controller: "timeline", action: "getFigureInformation")}?term=" + figureName,
                     success: function (result) {
                         if (result.success == true) {
                             addFigure(result.data);
@@ -166,24 +215,20 @@
 <br/>
 <table class="figures">
     <tr>
-        <td>
-
-        </td>
-        <td>
-            Selected figures:
-        </td>
-    </tr>
-    <tr>
         <td valign="top">
-            <div>
+            <div id="searchFigures">
                 <form name="searchFigures" action="javascript:void(0);">
                     <input type="text" id="figuresSearch" name="figureSearch"
                            placeholder="Search for (Figure), (Group) or (Attribute)" size="35"/>
                     <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
                            value="Add"/>
                 </form>
+                <br/>
             </div>
         </td>
+
+    </tr>
+    <tr>
         <td valign="top">
             <div id="figureList">
             </div>
@@ -193,12 +238,13 @@
 
 <input type="hidden" value="" id="figure_array_hidden" title=""/>
 <br/>
-
+<br/>
+<br/>
 <form id="travizSelect" name="travizSelect" action="javascript:void(0);">
     <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
-        for="anime">Anime</label><br>
-    <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br>
-    <input type="submit" onclick="refreshTraviz();" value="Generate TRAViz"/>
+        for="anime">Anime</label>
+    <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label>
+    &nbsp;&nbsp;<input type="submit" onclick="refreshTraviz();" value="Generate TRAViz"/>
 </form>
 
 <div id="containerDiv"></div>

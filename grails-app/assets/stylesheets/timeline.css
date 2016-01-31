@@ -1,6 +1,8 @@
 table.figures td {
     margin: 12px 120px 12px 12px;
-    padding: 0 10em 0 0;
+    padding: 0 1em 0 0;
+    overflow: auto;
+    white-space: nowrap;
 }
 
 table.figures {
@@ -24,4 +26,39 @@ fieldset {
 
 #containerDiv {
     overflow-y: auto;
+}
+
+#figureList {
+    overflow: auto;
+    width: 100%;
+    position: fixed;
+    /* TODO set min width and height */
+}
+
+.figureBox {
+    min-width: 50px;
+    background: rgb(225, 225, 225);
+    border: 3px solid rgb(211, 211, 211);
+    /*display: inline;*/
+}
+
+.tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    display: none;
+}
+
+#infoBoxPicture {
+    float: left;
+    display: block;
+}
+
+#infoBoxFacts {
+    float: right;
+}
+
+#infoBoxParent {
+    overflow: auto;
 }
