@@ -1,6 +1,7 @@
 package one.piece
 
 import grails.transaction.Transactional
+import org.apache.commons.lang.StringUtils
 import org.apache.commons.logging.LogFactory
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
@@ -308,7 +309,14 @@ class CrawlerJob {
             }
             episode.aneName = doc.select("th").first().text();
             episode.aneNumber = epNumber;
-            episode.save(flush: true, failOnError: true)
+            def airDates = doc.select("table.infobox").first();
+
+            if (airDates != null) {
+                airDates = airDates.select("b:contains(Airdate)").first().parent();
+                episode.aneAirDate = airDates.nextElementSibling().select("td").first().text();
+            }
+            episode.save(flush: true, failOnError: true);
+
             Figure fig;
             def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
             for (index in charTable) {
@@ -356,7 +364,23 @@ class CrawlerJob {
         int attempt = 0;
         try {
             Document doc = Jsoup.connect(URL).timeout(1000000).get();
-            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save(flush: true, failOnError: true)
+            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber);
+            def infobox = doc.select("table.toccolours").first();
+
+            if (infobox != null) {
+
+                def release = infobox.select("b:contains(Release Date:)").first().parent().parent().nextElementSibling().select("td").first();
+                def volume = infobox.select("b:contains(Volume:)").first().parent().parent().nextElementSibling();
+                def citations = release.select("sup");
+                if (citations != null) {
+                    citations.remove();
+                }
+                chapter.maeRelease = release.text();
+                if (StringUtils.isNumeric(volume.text())) {
+                    chapter.maeVolume = Integer.parseInt(volume.text());
+                }
+            }
+            chapter.save(flush: true, failOnError: true);
             def characters = doc.select("table.CharTable").select("li").select("a");
             Figure fig;
             for (element in characters) {
@@ -395,7 +419,6 @@ class CrawlerJob {
             }
         }
     }
-
 
     def execute() {
         def startTime = System.currentTimeMillis();

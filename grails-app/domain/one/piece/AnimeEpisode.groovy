@@ -5,6 +5,7 @@ class AnimeEpisode {
     int aneNumber
     int aneSeasonNr
     int aneEpisodeNr
+    String aneAirDate
     String aneIMdBUrl
     float aneRate
     int aneNumVotes
@@ -17,6 +18,7 @@ class AnimeEpisode {
         aneEpisodeNr nullable: true
         aneRate nullable: true
         aneNumVotes nullable: true
+        aneAirDate nullable: true
         aneIMdBUrl nullable: true
     }
 }

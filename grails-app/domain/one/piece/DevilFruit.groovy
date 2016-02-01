@@ -6,7 +6,7 @@ class DevilFruit {
     String defType
 
     static constraints = {
-		defMeaning nullable: true
+        defMeaning nullable: true
         defType nullable: true
     }
 }
