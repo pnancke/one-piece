@@ -85,7 +85,7 @@ class TimelineController {
                 resultCount = 1;
 
             }
-        } else if (term.endsWith(' (Attribute)')) {
+        }/* else if (term.endsWith(' (Attribute)')) {
             def attribute = term.minus(' (Attribute)')
             def criteria = Figure.createCriteria()
             Closure query = Figure.createWhereQuery(attribute)
@@ -96,7 +96,7 @@ class TimelineController {
                 data.put("Attribute", figures)
                 resultCount = figures.size()
             }
-        } else {
+        } */else {
             successResponse = false
         }
 

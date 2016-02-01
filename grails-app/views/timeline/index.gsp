@@ -219,7 +219,7 @@
             <div id="searchFigures">
                 <form name="searchFigures" action="javascript:void(0);">
                     <input type="text" id="figuresSearch" name="figureSearch"
-                           placeholder="Search for (Figure), (Group) or (Attribute)" size="35"/>
+                           placeholder="Search for (Figure) or (Group), e.g. Nami (Figure)" size="40"/>
                     <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
                            value="Add"/>
                 </form>

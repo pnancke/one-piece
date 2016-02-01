@@ -45,7 +45,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_NOT_EXISTS)
 
         then:
-        response.text == "[\"" + FIG_NAME_NOT_EXISTS + " (Attribute)\"]"
+        response.text == "[]"
     }
 
     void "test autocompletion with one match"() {
@@ -55,7 +55,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion ignores case"() {
@@ -65,7 +65,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT_LOWERCASE)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion with two matches"() {
@@ -76,7 +76,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_2_NAME + " (Figure)\",\"" + FIG_NAME_SHORT + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_2_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion maximum 10 suggestions"() {
@@ -119,7 +119,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE)
 
         then:
-        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE + " (Attribute)\"]"
+        response.text == "[\"" + MARINE + " (Group)\"]"
     }
 
     void "test autocomplete contains marine ignores case"() {
@@ -127,7 +127,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE_LOWERCASE)
 
         then:
-        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + MARINE + " (Group)\"]"
     }
 
     void "test autocomplete contains pirate"() {
@@ -135,7 +135,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE)
 
         then:
-        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE + " (Attribute)\"]"
+        response.text == "[\"" + PIRATE + " (Group)\"]"
     }
 
     void "test autocomplete contains pirate ignores case"() {
@@ -143,7 +143,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE_LOWERCASE)
 
         then:
-        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + PIRATE + " (Group)\"]"
     }
 
     void "test autocomplete includes gangs"() {
@@ -153,6 +153,6 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(GANG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + GANG_1_NAME + " (Group)\",\"" + GANG_1_NAME_SHORT + " (Attribute)\"]"
+        response.text == "[\"" + GANG_1_NAME + " (Group)\"]"
     }
 }

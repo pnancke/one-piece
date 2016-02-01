@@ -25,10 +25,10 @@ class FigureController {
         }
 
         names.sort()
-        def resultNamesSplitted = names.collate(9)[0]
-        if (!(term.endsWith(' (Attribute)') || term.endsWith('(Figure)') || term.endsWith('(Group)'))) {
+        def resultNamesSplitted = names.collate(10)[0]
+        /*if (!(term.endsWith(' (Attribute)') || term.endsWith('(Figure)') || term.endsWith('(Group)'))) {
             resultNamesSplitted.add(term + " (Attribute)")
-        }
+        } */
         log.info('autocomplete: ' + resultNamesSplitted)
         def resultJson = new JsonBuilder(resultNamesSplitted).toString()
         render resultJson
