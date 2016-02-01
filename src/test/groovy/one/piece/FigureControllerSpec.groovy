@@ -45,7 +45,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_NOT_EXISTS)
 
         then:
-        response.text == "[\"" + FIG_NAME_NOT_EXISTS + " (Attribute)\"]"
+        response.text == "[]"
     }
 
     void "test autocompletion with one match"() {
@@ -55,7 +55,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion ignores case"() {
@@ -65,7 +65,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_1_NAME_SHORT_LOWERCASE)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_1_NAME_SHORT_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion with two matches"() {
@@ -76,7 +76,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(FIG_NAME_SHORT)
 
         then:
-        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_2_NAME + " (Figure)\",\"" + FIG_NAME_SHORT + " (Attribute)\"]"
+        response.text == "[\"" + FIG_1_NAME + " (Figure)\",\"" + FIG_2_NAME + " (Figure)\"]"
     }
 
     void "test autocompletion maximum 10 suggestions"() {
@@ -119,7 +119,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE)
 
         then:
-        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE + " (Attribute)\"]"
+        response.text == "[\"" + MARINE + " (Group)\"]"
     }
 
     void "test autocomplete contains marine ignores case"() {
@@ -127,7 +127,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(MARINE_LOWERCASE)
 
         then:
-        response.text == "[\"" + MARINE + " (Group)\",\"" + MARINE_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + MARINE + " (Group)\"]"
     }
 
     void "test autocomplete contains pirate"() {
@@ -135,7 +135,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE)
 
         then:
-        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE + " (Attribute)\"]"
+        response.text == "[\"" + PIRATE + " (Group)\"]"
     }
 
     void "test autocomplete contains pirate ignores case"() {
@@ -143,7 +143,7 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(PIRATE_LOWERCASE)
 
         then:
-        response.text == "[\"" + PIRATE + " (Group)\",\"" + PIRATE_LOWERCASE + " (Attribute)\"]"
+        response.text == "[\"" + PIRATE + " (Group)\"]"
     }
 
     void "test autocomplete includes gangs"() {
@@ -153,102 +153,6 @@ class FigureControllerSpec extends Specification {
         controller.autocomplete(GANG_1_NAME_SHORT)
 
         then:
-        response.text == "[\"" + GANG_1_NAME + " (Group)\",\"" + GANG_1_NAME_SHORT + " (Attribute)\"]"
-    }
-
-    void "test search figure exists"() {
-        new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-
-        when:
-        controller.search(FIG_1_NAME + " (Figure)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + FIG_1_NAME + ' (Figure)"}'
-    }
-
-    void "test search ignores case"() {
-        new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-
-        when:
-        controller.search(FIG_1_NAME_LOWERCASE + " (Figure)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + FIG_1_NAME_LOWERCASE + ' (Figure)"}'
-    }
-
-    void "test search empty response when not found"() {
-        when:
-        controller.search(FOO)
-
-        then:
-        response.text == '{"success":false,"count":0,"data":\"\"}'
-    }
-
-    void "test search marine"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        new Marine(figure: figure).save(failOnError: true)
-
-        when:
-        controller.search(MARINE + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + MARINE + ' (Group)"}'
-    }
-
-    void "test search marine ignores case"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        new Marine(figure: figure).save(failOnError: true)
-
-        when:
-        controller.search(MARINE_LOWERCASE + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + MARINE_LOWERCASE + ' (Group)"}'
-    }
-
-    void "test search pirate"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        new Pirate(figure: figure).save(failOnError: true)
-
-        when:
-        controller.search(PIRATE + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + PIRATE + ' (Group)"}'
-    }
-
-    void "test search pirate ignores case"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        new Pirate(figure: figure).save(failOnError: true)
-
-        when:
-        controller.search(PIRATE_LOWERCASE + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + PIRATE_LOWERCASE + ' (Group)"}'
-    }
-
-    void "test search gang"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        def gang = new Gang(ganName: GANG).save(failOnError: true)
-        new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
-
-        when:
-        controller.search(GANG + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + GANG + " (Group)" + '"}'
-    }
-
-    void "test search gang ignores case"() {
-        def figure = new Figure(figName: FIG_1_NAME, figGender: "Female").save(failOnError: true)
-        def gang = new Gang(ganName: GANG).save(failOnError: true)
-        new Pirate(figure: figure).addToGangs(gang).save(failOnError: true)
-
-        when:
-        controller.search(GANG_1_NAME_LOWERCASE + " (Group)")
-
-        then:
-        response.text == '{"success":true,"count":1,"data":"' + GANG_1_NAME_LOWERCASE + ' (Group)"}'
+        response.text == "[\"" + GANG_1_NAME + " (Group)\"]"
     }
 }

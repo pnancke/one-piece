@@ -112,12 +112,12 @@ class Figure {
             if (!Strings.isNullOrEmpty(figureName)) {
                 figures.add(findByFigNameIlike(figureName))
             }
-        } else if (entity.endsWith(' (Attribute)')) {
+        } /*else if (entity.endsWith(' (Attribute)')) {
             def attribute = entity.minus(' (Attribute)')
             def criteria = createCriteria()
             Closure query = createWhereQuery(attribute)
             figures = criteria.list(query)
-        }
+        }*/
         return figures
     }
 
