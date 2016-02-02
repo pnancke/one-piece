@@ -44,17 +44,20 @@ class TimelineController {
         if (term == null) {
             successResponse = false
         } else if (term.contains(' (Group)')) {
-            def entities = Figure.getGroup(term.minus(' (Group)')).minus(' (Group)')
+            def entities = Figure.getGroup(term.minus(' (Group)'))
             if (entities != null) {
                 data.put("Members", entities.join(', '))
+                resultCount = entities.size()
+            } else {
+                resultCount = 0
+                successResponse = false
             }
-            resultCount = entities.size()
-
         } else if (term.contains(' (Figure)')) {
             def entity = term.minus(' (Figure)')
             def figure = Figure.findByFigNameIlike(entity)
             if (figure == null) {
                 successResponse = false
+                resultCount = 0
             } else {
                 if (figure.figPicture != null)
                     data.put("Picture", figure.figPicture)
@@ -96,7 +99,7 @@ class TimelineController {
                 data.put("Attribute", figures)
                 resultCount = figures.size()
             }
-        } */else {
+        } */ else {
             successResponse = false
         }
 
@@ -105,5 +108,4 @@ class TimelineController {
         def response = HttpUtils.buildJsonResponse(successResponse, data, resultCount).toString()
         render response
     }
-
 }
