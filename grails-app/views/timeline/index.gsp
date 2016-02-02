@@ -74,7 +74,7 @@
                 newFigureTd = document.createElement('td');
                 newFigureTd.id = searchTerm;
                 $('#figureList').append(newFigureTd);
-                newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="console.log(this); removeFigure(this)"/>'
+                newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input class="remove-figure-button" type="reset" id="removeFigureButton" value="&#10006" onclick="console.log(this); removeFigure(this)"/>'
                         + searchTerm + '</div>';
             } else {
                 var figureArray = figureHiddenFieldSelector.val().split(",");
@@ -84,7 +84,7 @@
                     newFigureTd = document.createElement('td');
                     newFigureTd.id = searchTerm;
                     $('#figureList').append(newFigureTd);
-                    newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                    newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input class="remove-figure-button" type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
                             + searchTerm + '</div>';
                 }
             }
@@ -122,7 +122,7 @@
                 },
                 style: {
                     tip: true,
-                    border: {width: 0, radius: 3}
+                    border: {width: 0, radius: 1}
                 }
             });
         }
@@ -185,8 +185,11 @@
                         if (result == null || result == "[]") {
                             alert("No episodes found for selected Entities!")
                         } else {
-                            traviz = new TRAViz("containerDiv", {
-                                lineBreaks: false
+                            var traviz = new TRAViz("containerDiv", {
+                                lineBreaks: false,
+                                baseColor: '#fffbc4',
+                                vertexBackground: 'rgba(0, 0, 0, 0.61)',
+                                fontSizeMin: 15
                             });
                             console.log("traviz data" + result);
                             traviz.align(JSON.parse(result));
@@ -197,13 +200,7 @@
                     }
                 });
             }
-
         }
-
-        var traviz = new TRAViz("containerDiv", {
-            lineBreaks: false
-        });
-
     </script>
     <title>timeline</title>
 </head>
@@ -224,19 +221,20 @@
         <input id="figuresSearch" type="text" placeholder="Search for (Figure) or (Group), e.g. Nami (Figure)" required>
         <button type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);">Add</button>
     </form>
-    <br/>
 </div>
-<table class="figures">
-    <tr>
-        <td valign="top">
-            <div id="figureList">
-            </div>
-        </td>
-    </tr>
-</table>
+
+<div class="figure-list-wrapper">
+    <table class="figures">
+        <tr>
+            <td valign="top">
+                <div id="figureList">
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <input type="hidden" value="" id="figure_array_hidden" title=""/>
-<br/>
 
 <div align="center">
     <form class="traviz-select" id="travizSelect" name="travizSelect" action="javascript:void(0);">
@@ -249,11 +247,6 @@
 <br/>
 
 <div id="containerDiv"></div>
-<script type="text/javascript">
-    var traviz = new TRAViz("containerDiv", {
-        lineBreaks: false
-    });
-</script>
 
 <div id="spinner"></div>
 </body>

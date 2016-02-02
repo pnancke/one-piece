@@ -2226,7 +2226,7 @@ TRAViz.prototype.visualize = function(){
 			},
 			style: {
 				tip: true,
-				border: { width: 0, radius: 3 }
+				border: { width: 0, radius: 1 }
 			},
 			position: {
 				corner: {
