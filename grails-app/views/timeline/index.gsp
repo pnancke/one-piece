@@ -72,8 +72,9 @@
             if (figures == undefined || figures == "") {
                 figureHiddenFieldSelector.val(searchTerm);
                 newFigureTd = document.createElement('td');
+                newFigureTd.id = searchTerm;
                 $('#figureList').append(newFigureTd);
-                newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
+                newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input type="reset" id="removeFigureButton" value="&#10006" onclick="console.log(this); removeFigure(this)"/>'
                         + searchTerm + '</div>';
             } else {
                 var figureArray = figureHiddenFieldSelector.val().split(",");
@@ -128,15 +129,15 @@
 
         function removeFigure(button) {
             var figureHiddenFieldSelector = $('#figure_array_hidden');
-            var toRemoveDiv = $(button).closest('div');
-            var toRemoveFigure = toRemoveDiv[0].innerText;
+            var toRemoveTd = $(button).closest('td');
+            var toRemoveFigure = toRemoveTd[0].id;
             console.log("remove figure: " + toRemoveFigure);
             var figureArray = figureHiddenFieldSelector.val().split(",");
             figureArray = jQuery.grep(figureArray, function (value) {
                 return value != toRemoveFigure;
             });
             figureHiddenFieldSelector.val(figureArray);
-            toRemoveDiv.fadeOut(250, function () {
+            toRemoveTd.fadeOut(250, function () {
                 $(this).remove();
             });
         }
@@ -208,26 +209,24 @@
 </head>
 
 <body>
+<header>
+    <div id="header" align="center">
+        <img src="/assets/header.png" style="max-width: 40%"/>
+    </div>
+
+</header>
 
 <g:if test="${flash.message}">
     <div class="message">${flash.message}</div>
 </g:if>
-<br/>
+<div class="searchFigures">
+    <form class="form-wrapper cf" action="javascript:void(0);">
+        <input id="figuresSearch" type="text" placeholder="Search for (Figure) or (Group), e.g. Nami (Figure)" required>
+        <button type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);">Add</button>
+    </form>
+    <br/>
+</div>
 <table class="figures">
-    <tr>
-        <td valign="top">
-            <div id="searchFigures">
-                <form name="searchFigures" action="javascript:void(0);">
-                    <input type="text" id="figuresSearch" name="figureSearch"
-                           placeholder="Search for (Figure) or (Group), e.g. Nami (Figure)" size="40"/>
-                    <input type="submit" onclick="searchFigure(document.getElementById('figuresSearch').value);"
-                           value="Add"/>
-                </form>
-                <br/>
-            </div>
-        </td>
-
-    </tr>
     <tr>
         <td valign="top">
             <div id="figureList">
@@ -238,14 +237,16 @@
 
 <input type="hidden" value="" id="figure_array_hidden" title=""/>
 <br/>
+
+<div align="center">
+    <form class="traviz-select" id="travizSelect" name="travizSelect" action="javascript:void(0);">
+        <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
+            for="anime">Anime</label>
+        <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br/>
+        <button type="submit" onclick="refreshTraviz();">Generate TRAViz</button>
+    </form>
+</div>
 <br/>
-<br/>
-<form id="travizSelect" name="travizSelect" action="javascript:void(0);">
-    <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
-        for="anime">Anime</label>
-    <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label>
-    &nbsp;&nbsp;<input type="submit" onclick="refreshTraviz();" value="Generate TRAViz"/>
-</form>
 
 <div id="containerDiv"></div>
 <script type="text/javascript">
@@ -255,6 +256,5 @@
 </script>
 
 <div id="spinner"></div>
-
 </body>
 </html>
