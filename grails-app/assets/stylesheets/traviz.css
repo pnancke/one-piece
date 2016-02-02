@@ -14,6 +14,6 @@
 .unlink {
     width: 23px;
     height: 16px;
-    background: #FFFFFF url('/assets/traviz/unlink.png') no-repeat;
+    background: rgb(80, 80, 80) url('/assets/traviz/unlink.png') no-repeat;
     cursor: pointer;
 }

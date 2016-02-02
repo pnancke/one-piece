@@ -109,20 +109,19 @@
                 content: {
                     text: tiptext,
                     title: {
-                        text: "<div>" + searchTerm + "</div>",
-                        button: '&#10006'
+                        text: "<div>" + searchTerm + "</div>"
                     }
-                },
-                show: {
-                    when: 'click',
-                    solo: true
-                },
-                hide: {
-                    when: {event: 'click'}
                 },
                 style: {
                     tip: true,
-                    border: {width: 0, radius: 1}
+                    border: {width: 0, radius: 1},
+                    name: 'dark'
+                },
+                position: {
+                    corner: {
+                        target: 'rightMiddle',
+                        tooltip: 'leftTop'
+                    }
                 }
             });
         }
@@ -241,7 +240,7 @@
         <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
             for="anime">Anime</label>
         <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br/>
-        <button type="submit" onclick="refreshTraviz();">Generate TRAViz</button>
+        <button type="submit" onclick="refreshTraviz();">Generate Graph</button>
     </form>
 </div>
 <br/>
