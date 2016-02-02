@@ -6,7 +6,7 @@ body {
 }
 
 html {
-    overflow-y: scroll;
+    height: 101%;
 }
 
 .searchFigures {
@@ -15,7 +15,7 @@ html {
 
 table.figures td {
     margin: 12px 120px 12px 12px;
-    padding: 0 1em 0 0;
+    padding: 0 0 0 1em;
     overflow: auto;
     white-space: nowrap;
 }
@@ -114,7 +114,7 @@ fieldset {
     height: 20px;
     padding: 10px 5px;
     float: left;
-    font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    font:  15px 'lucida sans', 'trebuchet MS', 'Tahoma';
     border: 0;
     background: #eee;
     border-radius: 3px 0 0 3px;
@@ -255,4 +255,7 @@ fieldset {
 
 .qtip-wrapper{
     font-size: small;
+}
+.ui-autocomplete{
+    font-size: 20px;
 }
