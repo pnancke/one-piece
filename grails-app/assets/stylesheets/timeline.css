@@ -29,6 +29,9 @@ table.figures {
 
 .figure-list-wrapper {
     overflow-x: auto;
+    height: 80px;
+    /* TODO center figureBoxes inside wrapper */
+    /*background: rgba(0, 0, 0, .4); */
 }
 
 #removeFigureButton {
@@ -114,7 +117,6 @@ fieldset {
     height: 20px;
     padding: 10px 5px;
     float: left;
-    font:  15px 'lucida sans', 'trebuchet MS', 'Tahoma';
     border: 0;
     background: #eee;
     border-radius: 3px 0 0 3px;
@@ -210,7 +212,7 @@ fieldset {
 }
 
 .traviz-select {
-    width: 220px;
+    width: 450px;
     padding: 15px;
     margin: 20px auto 20px auto;
     background: #444;
@@ -253,9 +255,46 @@ fieldset {
     background: rgba(0, 0, 0, .4) !important;
 }
 
-.qtip-wrapper{
+.qtip-wrapper {
     font-size: small;
 }
-.ui-autocomplete{
+
+.ui-autocomplete {
+    font-size: 18px;
+}
+
+.ui-menu .ui-menu-item a.ui-corner-all:hover, .ui-menu .ui-menu-item a.ui-corner-all:focus, .ui-menu .ui-menu-item a.ui-corner-all:active {
+    background: #e54040 !important;
+    color: #000;
+    border-radius: 0;
+}
+
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+    background: #e54040;
+    border: none;
+    color: #000;
+    border-radius: 0;
+    font-weight: normal;
+}
+.episode-range-selector{
+    width: 4em;
+}
+.error {
+    width:200px;
+    height:20px;
+    height:auto;
+    position:absolute;
+    left:50%;
+    margin-left:-100px;
+    bottom:10px;
+    background-color: #383838;
+    color: #F0F0F0;
+    font-family: Calibri;
     font-size: 20px;
+    padding:10px;
+    text-align:center;
+    border-radius: 2px;
+    -webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    -moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
 }
