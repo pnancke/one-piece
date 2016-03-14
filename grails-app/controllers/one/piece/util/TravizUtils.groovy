@@ -7,13 +7,16 @@ import org.grails.web.json.JSONObject
 
 public class TravizUtils {
 
-    static String generateAnimeTravizFor(String entity) {
+    static String generateAnimeTravizFor(String entity, Integer start, Integer end) {
         def episodes = new ArrayList<Integer>()
         def figEpisodeJsonObject = new JSONObject()
 
         def figures = Figure.getFigures(entity)
         for (Figure figure : figures) {
             episodes.addAll(figure.animeEpisodeAppearance.aneNumber)
+        }
+        if(end > 0){
+            episodes.removeAll { it < start || it > end }
         }
         if (episodes.isEmpty()) {
             return null
@@ -24,12 +27,15 @@ public class TravizUtils {
         }
     }
 
-    static String generateMangaTravizFor(String entity) {
+    static String generateMangaTravizFor(String entity, Integer start, Integer end) {
         def episodes = new ArrayList<Integer>()
         def figEpisodeJsonObject = new JSONObject()
         def figures = Figure.getFigures(entity)
         for (Figure figure : figures) {
             episodes.addAll(figure.mangaEpisodeAppearance.maeNumber)
+        }
+        if(end > 0){
+            episodes.removeAll { it < start || it > end }
         }
         if (episodes.isEmpty()) {
             return null

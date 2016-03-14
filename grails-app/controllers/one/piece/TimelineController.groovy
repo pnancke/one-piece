@@ -10,11 +10,11 @@ class TimelineController {
 
     def index() {}
 
-    def travizDataAnime(String figures) {
+    def travizDataAnime(String figures, Integer start, Integer end) {
         def figureNamesList = new ArrayList(Arrays.asList(figures.split(',')))
         def result = []
         for (String figureName : figureNamesList) {
-            def s = TravizUtils.generateAnimeTravizFor(figureName)
+            def s = TravizUtils.generateAnimeTravizFor(figureName, start, end)
             if (!Strings.isNullOrEmpty(s)) {
                 result.add(s)
             }
@@ -22,11 +22,11 @@ class TimelineController {
         render result.toString()
     }
 
-    def travizDataManga(String figures) {
+    def travizDataManga(String figures, Integer start, Integer end) {
         def figureNamesList = new ArrayList(Arrays.asList(figures.split(',')))
         def result = []
         for (String figureName : figureNamesList) {
-            def s = TravizUtils.generateMangaTravizFor(figureName)
+            def s = TravizUtils.generateMangaTravizFor(figureName, start, end)
             if (!Strings.isNullOrEmpty(s)) {
                 result.add(s)
             }

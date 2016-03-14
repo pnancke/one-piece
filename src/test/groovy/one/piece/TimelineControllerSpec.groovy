@@ -42,7 +42,7 @@ class TimelineControllerSpec extends Specification {
         new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME)
+        controller.travizDataAnime(FIGURE_1_NAME, 1, 10)
 
         then:
         response.getText() == "[]"
@@ -54,7 +54,7 @@ class TimelineControllerSpec extends Specification {
         animeEpisode.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)")
+        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
@@ -68,7 +68,7 @@ class TimelineControllerSpec extends Specification {
         animeEpisode.addToFigures(figure2).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + ' (Figure)')
+        controller.travizDataAnime(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + ' (Figure)', 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}, " +
@@ -83,7 +83,7 @@ class TimelineControllerSpec extends Specification {
         animeEpisode2.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)")
+        controller.travizDataAnime(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}]"
@@ -93,7 +93,7 @@ class TimelineControllerSpec extends Specification {
         new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME)
+        controller.travizDataManga(FIGURE_1_NAME, 1, 10)
 
         then:
         response.getText() == "[]"
@@ -105,7 +105,7 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME + " (Figure)")
+        controller.travizDataManga(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
@@ -119,7 +119,7 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode.addToFigures(figure2).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + " (Figure)")
+        controller.travizDataManga(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + " (Figure)", 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}, " +
@@ -134,7 +134,7 @@ class TimelineControllerSpec extends Specification {
         mangaEpisode2.addToFigures(figure).save(failOnError: true)
 
         when:
-        controller.travizDataManga(FIGURE_1_NAME + " (Figure)")
+        controller.travizDataManga(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
         response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"

@@ -73,7 +73,7 @@
                 figureHiddenFieldSelector.val(searchTerm);
                 newFigureTd = document.createElement('td');
                 newFigureTd.id = searchTerm;
-                $('#figureList').append(newFigureTd);
+                $('#figureList').append($(newFigureTd).hide().fadeIn(250));
                 newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input class="remove-figure-button" type="reset" id="removeFigureButton" value="&#10006" onclick="console.log(this); removeFigure(this)"/>'
                         + searchTerm + '</div>';
             } else {
@@ -83,7 +83,7 @@
                     figureHiddenFieldSelector.val(figureArray);
                     newFigureTd = document.createElement('td');
                     newFigureTd.id = searchTerm;
-                    $('#figureList').append(newFigureTd);
+                    $('#figureList').append($(newFigureTd).hide().fadeIn(250));
                     newFigureTd.innerHTML = '<div class="figureBox" id="' + searchTerm + '"><input class="remove-figure-button" type="reset" id="removeFigureButton" value="&#10006" onclick="removeFigure(this)"/>'
                             + searchTerm + '</div>';
                 }
@@ -121,6 +121,15 @@
                     corner: {
                         target: 'rightMiddle',
                         tooltip: 'leftTop'
+                    }
+                },
+                show: {
+                    when: 'click',
+                    solo: true
+                },
+                hide: {
+                    when: {
+                        event: 'unfocus'
                     }
                 }
             });
@@ -172,13 +181,15 @@
         function refreshTraviz() {
             var figureHiddenFieldSelector = $('#figure_array_hidden');
             var figures = figureHiddenFieldSelector.val();
+            var episodeStart = $('#episode-range-selector-from').val();
+            var episodeEnd = $('#episode-range-selector-to').val();
             var action = $('input[name=travizRadio]:checked', '#travizSelect').val();
             if (figures == null || figures == "") {
                 alert("Please select at least one figure.");
             } else {
                 startSpinner();
                 $.ajax({
-                    url: "/timeline/" + action + "?figures=" + figures,
+                    url: "/timeline/" + action + "?figures=" + figures + "&start=" + episodeStart + "&end=" + episodeEnd,
                     success: function (result) {
                         stopSpinner();
                         if (result == null || result == "[]") {
@@ -233,13 +244,26 @@
     </table>
 </div>
 
-<input type="hidden" value="" id="figure_array_hidden" title=""/>
+<input type="hidden" value="" id="figure_array_hidden" title="" autocomplete="off"/>
 
 <div align="center">
     <form class="traviz-select" id="travizSelect" name="travizSelect" action="javascript:void(0);">
         <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
             for="anime">Anime</label>
         <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br/>
+        <label for="episode-range-selector-from">Show from Episode</label><br/><input type="number"
+                                                                                      id="episode-range-selector-from"
+                                                                                      name="travizEpisodeSelector"
+                                                                                      class="episode-range-selector"
+                                                                                      value="1"
+                                                                                      min="1"
+                                                                                      pattern="\d*">
+        <label for="episode-range-selector-to">to&nbsp;</label><input type="number" id="episode-range-selector-to"
+                                                                      name="travizEpisodeSelector"
+                                                                      class="episode-range-selector"
+                                                                      value="20"
+                                                                      min="1"
+                                                                      pattern="\d*"><br/><br/>
         <button type="submit" onclick="refreshTraviz();">Generate Graph</button>
     </form>
 </div>
