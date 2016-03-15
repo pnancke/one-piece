@@ -102,7 +102,7 @@ class Figure {
         results
     }
 
-    static getFigures(String entity) {
+    public static getFigures(String entity) {
         def figures = new ArrayList<Figure>()
         if (entity.endsWith(' (Group)')) {
             def group = entity.minus(' (Group)')
@@ -121,7 +121,7 @@ class Figure {
         return figures
     }
 
-    private static getFiguresFromGroup(String group) {
+    static getFiguresFromGroup(String group) {
         ArrayList results
         if (!Strings.isNullOrEmpty(group)) {
             if ("marine".equalsIgnoreCase(group)) {

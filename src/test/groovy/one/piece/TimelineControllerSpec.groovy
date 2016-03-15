@@ -45,7 +45,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME, 1, 10)
 
         then:
-        response.getText() == "[]"
+        response.getText() == "{\"success\":true,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
     }
 
     void "test traviz anime with one episode and one figure"() {
@@ -57,7 +57,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":1,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test traviz anime with two figures"() {
@@ -71,8 +71,8 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + ' (Figure)', 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":2,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}," +
+                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test traviz anime with two episodes"() {
@@ -86,7 +86,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":1,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + " " + ANIME_2_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test traviz manga with one figure results empty array"() {
@@ -96,7 +96,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataManga(FIGURE_1_NAME, 1, 10)
 
         then:
-        response.getText() == "[]"
+        response.getText() == "{\"success\":true,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
     }
 
     void "test traviz manga with one episode and one figure"() {
@@ -108,7 +108,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataManga(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":1,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test traviz manga with two figures"() {
@@ -122,8 +122,8 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataManga(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + " (Figure)", 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}, " +
-                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":2,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}," +
+                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test traviz manga with two episodes"() {
@@ -137,7 +137,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataManga(FIGURE_1_NAME + " (Figure)", 1, 10)
 
         then:
-        response.getText() == "[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}]"
+        response.getText() == "{\"success\":true,\"count\":1,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + MANGA_1_NUMBER + " " + MANGA_2_NUMBER + "\"}],\"similar\":{}}}"
     }
 
     void "test getFigureInformation figure exists"() {
@@ -234,5 +234,20 @@ class TimelineControllerSpec extends Specification {
 
         then:
         response.text == '{"success":true,"count":1,"data":{"Members":"' + FIG_1_NAME + '","SearchTerm":"' + GANG_1_NAME_LOWERCASE + ' (Group)"}}'
+    }
+
+    void "test traviz anime with two figures similarity"() {
+        def animeEpisode = new AnimeEpisode(aneNumber: 1).save(failOnError: true)
+        def figure1 = new Figure(figName: FIGURE_1_NAME, figGender: "Male").save(failOnError: true)
+        def figure2 = new Figure(figName: FIGURE_2_NAME, figGender: "Male").save(failOnError: true)
+        animeEpisode.addToFigures(figure1).save(failOnError: true)
+        animeEpisode.addToFigures(figure2).save(failOnError: true)
+
+        when:
+        controller.travizDataAnime(FIGURE_1_NAME + ' (Figure),' + FIGURE_2_NAME + ' (Figure)', 1, 10)
+
+        then:
+        response.getText() == "{\"success\":true,\"count\":2,\"data\":{\"traviz\":[{\"edition\":\"" + FIGURE_1_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}," +
+                "{\"edition\":\"" + FIGURE_2_NAME + " (Figure)\",\"text\":\"" + ANIME_1_NUMBER + "\"}],\"similar\":{}}}"
     }
 }

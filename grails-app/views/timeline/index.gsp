@@ -189,9 +189,9 @@
             } else {
                 startSpinner();
                 $.ajax({
+                    dataType: "json",
                     url: "/timeline/" + action + "?figures=" + figures + "&start=" + episodeStart + "&end=" + episodeEnd,
                     success: function (result) {
-                        stopSpinner();
                         if (result == null || result == "[]") {
                             alert("No episodes found for selected Entities!")
                         } else {
@@ -201,12 +201,17 @@
                                 vertexBackground: 'rgba(0, 0, 0, 0.61)',
                                 fontSizeMin: 15
                             });
-                            console.log("traviz data" + result);
-                            traviz.align(JSON.parse(result));
+                            var travizData = result.data['traviz'];
+                            traviz.align(travizData);
                             console.log("Generating Graph with Traviz...");
                             traviz.visualize();
                             console.log("Graph generation complete.");
+                            stopSpinner();
                         }
+                    },
+                    error: function () {
+                        stopSpinner();
+                        alert("Unexpected error generating graph, please try again! ");
                     }
                 });
             }
@@ -261,7 +266,7 @@
         <label for="episode-range-selector-to">to&nbsp;</label><input type="number" id="episode-range-selector-to"
                                                                       name="travizEpisodeSelector"
                                                                       class="episode-range-selector"
-                                                                      value="20"
+                                                                      value="100"
                                                                       min="1"
                                                                       pattern="\d*"><br/><br/>
         <button type="submit" onclick="refreshTraviz();">Generate Graph</button>
