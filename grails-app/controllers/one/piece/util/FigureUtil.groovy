@@ -87,7 +87,11 @@ public class FigureUtil {
     private static BigDecimal calculateSimilarity(HashSet episodePool, HashSet currEpisodes) {
         def intersection = Sets.intersection(episodePool, currEpisodes)
         def union = Sets.union(episodePool, currEpisodes)
-        def similarity = intersection.size() / union.size()
-        similarity
+        if (union.size() > 0) {
+            def similarity = intersection.size() / union.size()
+            similarity
+        } else {
+            return 0
+        }
     }
 }
