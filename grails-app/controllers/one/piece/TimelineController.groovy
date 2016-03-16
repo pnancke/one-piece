@@ -1,9 +1,11 @@
 package one.piece
 
 import com.google.common.base.Strings
+import one.piece.util.FigureUtil
 import one.piece.util.HttpUtils
 import one.piece.util.TravizUtils
 import com.google.common.base.Joiner
+import org.grails.web.json.JSONObject
 
 class TimelineController {
     public static final Joiner EPISODE_JOINER = Joiner.on(" ").skipNulls()
@@ -14,24 +16,44 @@ class TimelineController {
         def figureNamesList = new ArrayList(Arrays.asList(figures.split(',')))
         def result = []
         for (String figureName : figureNamesList) {
-            def s = TravizUtils.generateAnimeTravizFor(figureName, start, end)
-            if (!Strings.isNullOrEmpty(s)) {
-                result.add(s)
+            def figEpisodeJsonObject = new JSONObject()
+            figEpisodeJsonObject["edition"] = figureName
+            def travizEpisodes = TravizUtils.generateAnimeTravizFor(figureName, start, end)
+            figEpisodeJsonObject["text"] = travizEpisodes
+            if (!Strings.isNullOrEmpty(travizEpisodes)) {
+                figEpisodeJsonObject["text"] = travizEpisodes
+                result.add(figEpisodeJsonObject)
             }
         }
-        render result.toString()
+
+        def similarFigures = FigureUtil.getSimilarFiguresAnime(figureNamesList, 5)
+        def data = [:]
+        data.put("traviz", result)
+        data.put("similar", similarFigures)
+        def response = HttpUtils.buildJsonResponse(result.size() > 0, data, result.size()).toString()
+        render response
     }
 
     def travizDataManga(String figures, Integer start, Integer end) {
         def figureNamesList = new ArrayList(Arrays.asList(figures.split(',')))
         def result = []
         for (String figureName : figureNamesList) {
-            def s = TravizUtils.generateMangaTravizFor(figureName, start, end)
-            if (!Strings.isNullOrEmpty(s)) {
-                result.add(s)
+            def figEpisodeJsonObject = new JSONObject()
+            figEpisodeJsonObject["edition"] = figureName
+            def travizEpisodes = TravizUtils.generateMangaTravizFor(figureName, start, end)
+            figEpisodeJsonObject["text"] = travizEpisodes
+            if (!Strings.isNullOrEmpty(travizEpisodes)) {
+                figEpisodeJsonObject["text"] = travizEpisodes
+                result.add(figEpisodeJsonObject)
             }
         }
-        render result.toString()
+
+        def similarFigures = FigureUtil.getSimilarFiguresManga(figureNamesList, 5)
+        def data = [:]
+        data.put("traviz", result)
+        data.put("similar", similarFigures)
+        def response = HttpUtils.buildJsonResponse(result.size() > 0, data, result.size()).toString()
+        render response
     }
 
     def getFigureInformation(String term) {

@@ -1,8 +1,8 @@
 body {
-    background: url("/assets/bg.png");
+    background: url("/assets/bg-compressed-small.png");
     background-size: 100%;
     font-family: sans-serif;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 html {
@@ -60,7 +60,6 @@ fieldset {
     background: rgba(0, 0, 0, .1);
     border-radius: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .4) inset, 0 1px 0 rgba(255, 255, 255, .2);
-
 }
 
 #figureList {
@@ -76,6 +75,7 @@ fieldset {
     border-radius: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .4), 0 1px 0 rgba(255, 255, 255, .2);
     color: #fffbc4;
+    font-size: 16px;
 }
 
 .tooltip {
@@ -211,14 +211,42 @@ fieldset {
     zoom: 1;
 }
 
-.traviz-select {
+#suggested-figures-right{
+    display: inline-block;
     width: 450px;
+    height: 160px;
     padding: 15px;
-    margin: 20px auto 20px auto;
     background: #444;
     background: rgba(0, 0, 0, .4);
     border-radius: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .4) inset, 0 1px 0 rgba(255, 255, 255, .2);
+    vertical-align:top;
+}
+
+#wrapper-traviz-select-similar-figures{
+    text-align: center;
+    padding: 40px;
+    height: 160px;
+    max-height: 160px;
+
+}
+#traviz-left{
+    vertical-align:top;
+    display: inline-block;
+    width: 450px;
+    height: 160px;
+    padding: 15px;
+    background: #444;
+    background: rgba(0, 0, 0, .4);
+    border-radius: 1px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .4) inset, 0 1px 0 rgba(255, 255, 255, .2);
+}
+div#clearing-float{
+    clear: both;
+}
+div.suggested-figure{
+    text-align: left;
+    font-size: 18px;
 }
 
 .traviz-select button {
