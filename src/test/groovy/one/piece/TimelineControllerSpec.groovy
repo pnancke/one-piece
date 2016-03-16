@@ -45,7 +45,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataAnime(FIGURE_1_NAME, 1, 10)
 
         then:
-        response.getText() == "{\"success\":true,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
+        response.getText() == "{\"success\":false,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
     }
 
     void "test traviz anime with one episode and one figure"() {
@@ -96,7 +96,7 @@ class TimelineControllerSpec extends Specification {
         controller.travizDataManga(FIGURE_1_NAME, 1, 10)
 
         then:
-        response.getText() == "{\"success\":true,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
+        response.getText() == "{\"success\":false,\"count\":0,\"data\":{\"traviz\":[],\"similar\":{}}}"
     }
 
     void "test traviz manga with one episode and one figure"() {

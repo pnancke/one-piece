@@ -192,8 +192,9 @@
                     dataType: "json",
                     url: "/timeline/" + action + "?figures=" + figures + "&start=" + episodeStart + "&end=" + episodeEnd,
                     success: function (result) {
-                        if (result == null || result == "[]") {
-                            alert("No episodes found for selected Entities!")
+                        if (result == null || result == "[]" || !result.success) {
+                            stopSpinner();
+                            alert("No episodes found for selected Entities!");
                         } else {
                             var traviz = new TRAViz("containerDiv", {
                                 lineBreaks: false,
@@ -206,6 +207,13 @@
                             console.log("Generating Graph with Traviz...");
                             traviz.visualize();
                             console.log("Graph generation complete.");
+                            var similarFigures = result.data['similar'];
+                            var figure;
+                            $('#suggested-figures-content').text("");
+                            for (figure in similarFigures) {
+                                $('#suggested-figures-content').append('<div class="suggested-figure">' + figure + ' - ' +
+                                        Math.round(similarFigures[figure] * 100) + '&percnt;' + '<br/></div>')
+                            }
                             stopSpinner();
                         }
                     },
@@ -223,7 +231,7 @@
 <body>
 <header>
     <div id="header" align="center">
-        <img src="/assets/header.png" style="max-width: 40%"/>
+        <img src="/assets/header-compressed.png" style="max-width: 40%"/>
     </div>
 
 </header>
@@ -251,28 +259,39 @@
 
 <input type="hidden" value="" id="figure_array_hidden" title="" autocomplete="off"/>
 
-<div align="center">
-    <form class="traviz-select" id="travizSelect" name="travizSelect" action="javascript:void(0);">
-        <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
-            for="anime">Anime</label>
-        <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label for="manga">Manga</label><br/>
-        <label for="episode-range-selector-from">Show from Episode</label><br/><input type="number"
-                                                                                      id="episode-range-selector-from"
-                                                                                      name="travizEpisodeSelector"
-                                                                                      class="episode-range-selector"
-                                                                                      value="1"
-                                                                                      min="1"
-                                                                                      pattern="\d*">
-        <label for="episode-range-selector-to">to&nbsp;</label><input type="number" id="episode-range-selector-to"
-                                                                      name="travizEpisodeSelector"
-                                                                      class="episode-range-selector"
-                                                                      value="100"
-                                                                      min="1"
-                                                                      pattern="\d*"><br/><br/>
-        <button type="submit" onclick="refreshTraviz();">Generate Graph</button>
-    </form>
+<div align="center" id="wrapper-traviz-select-similar-figures">
+    <div id="traviz-left">
+        <form class="traviz-select" id="travizSelect" name="travizSelect" action="javascript:void(0);">
+            <input type="radio" id="anime" name="travizRadio" value="travizDataAnime" checked="checked"><label
+                for="anime">Anime</label>
+            <input type="radio" id="manga" name="travizRadio" value="travizDataManga"><label
+                for="manga">Manga</label><br/>
+            <label for="episode-range-selector-from">Show from Episode</label><br/><input type="number"
+                                                                                          id="episode-range-selector-from"
+                                                                                          name="travizEpisodeSelector"
+                                                                                          class="episode-range-selector"
+                                                                                          value="1"
+                                                                                          min="1"
+                                                                                          pattern="\d*">
+            <label for="episode-range-selector-to">to&nbsp;</label><input type="number" id="episode-range-selector-to"
+                                                                          name="travizEpisodeSelector"
+                                                                          class="episode-range-selector"
+                                                                          value="100"
+                                                                          min="1"
+                                                                          pattern="\d*"><br/><br/>
+            <button type="submit" onclick="refreshTraviz();">Generate Graph</button>
+        </form>
+    </div>
+
+    <div id="suggested-figures-right" title="Figures that often appear together with your current selection.">
+        <div id="suggested-figures-heading" style="margin-bottom: 15px"><span
+                style="text-decoration: underline;">Suggested Figures*</span><br/></div>
+
+        <div id="suggested-figures-content"></div></div>
 </div>
 <br/>
+
+<div id="clearing-float"></div>
 
 <div id="containerDiv"></div>
 

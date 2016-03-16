@@ -30,7 +30,7 @@ class TimelineController {
         def data = [:]
         data.put("traviz", result)
         data.put("similar", similarFigures)
-        def response = HttpUtils.buildJsonResponse(true, data, result.size()).toString()
+        def response = HttpUtils.buildJsonResponse(result.size() > 0, data, result.size()).toString()
         render response
     }
 
@@ -52,7 +52,7 @@ class TimelineController {
         def data = [:]
         data.put("traviz", result)
         data.put("similar", similarFigures)
-        def response = HttpUtils.buildJsonResponse(true, data, result.size()).toString()
+        def response = HttpUtils.buildJsonResponse(result.size() > 0, data, result.size()).toString()
         render response
     }
 
