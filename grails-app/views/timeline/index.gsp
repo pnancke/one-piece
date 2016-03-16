@@ -199,6 +199,7 @@
                             var traviz = new TRAViz("containerDiv", {
                                 lineBreaks: false,
                                 baseColor: '#fffbc4',
+                                colors: ["#a1fc38", "#e1fde9", "#968afc", "#67ffb3", "#e2fe4d", "#5F9EA0", "#7BBF6A"],
                                 vertexBackground: 'rgba(0, 0, 0, 0.61)',
                                 fontSizeMin: 15
                             });
@@ -283,9 +284,9 @@
         </form>
     </div>
 
-    <div id="suggested-figures-right" title="Figures that often appear together with your current selection.">
-        <div id="suggested-figures-heading" style="margin-bottom: 15px"><span
-                style="text-decoration: underline;">Suggested Figures*</span><br/></div>
+    <div id="suggested-figures-right">
+        <div id="suggested-figures-heading" style="margin-bottom: 15px"
+             title="Figures that often appear together with your current selection.">Suggested Figures*<br/></div>
 
         <div id="suggested-figures-content"></div></div>
 </div>
