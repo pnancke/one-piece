@@ -85,8 +85,6 @@ class TimelineController {
                     data.put("Picture", figure.figPicture)
                 if (figure.figName != null)
                     data.put("Name", figure.figName)
-                if (figure.figEpithet != null)
-                    data.put("Epithet", figure.figEpithet)
                 if (figure.figRace != null)
                     data.put("Race", figure.figRace)
                 if (figure.figAge != null)
@@ -110,8 +108,6 @@ class TimelineController {
                     DevilFruit devf = figure.devilFruit
                     data.put("Devilfruit", devf.defName)
                 }
-                if (figure.figJapaneseName != null)
-                    data.put("Japanese Name", figure.figJapaneseName)
                 if (figure.figDebut != null)
                     data.put("Debut", figure.figDebut)
                 if (figure.figResidence != null)

@@ -2,15 +2,14 @@ package one.piece
 
 import com.google.common.base.Splitter
 import grails.transaction.Transactional
+import grails.util.Holders
+import groovy.sql.Sql
 import org.apache.commons.logging.LogFactory
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.TextNode
 import org.jsoup.select.Elements
-import groovy.sql.Sql
-import grails.util.Holders
-
 
 @Transactional
 class CrawlerJob {
@@ -80,11 +79,11 @@ class CrawlerJob {
         infoBoxData
     }
 
-/**
- Get the name of all Gangs portrayed in Series and Manga
- * @throws IOException
- */
-    public void getGangs() throws IOException {
+    /**
+     * Get the name of all Gangs.
+     * @throws IOException
+     */
+    private static void getGangs() throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Pirate_Crews").timeout(1000000).get();
         // Get the content inside the table Gangs.
         def gangs = doc.select("table[title=Pirate Crews Navibox]").first().select("table.collapsible")
@@ -94,11 +93,11 @@ class CrawlerJob {
         }
     }
 
-/**
- * get the name and type of all Devil Fruits who appear on Mangas or Episodes of One Piece
- * @throws IOException
- */
-    public void getDevilFruit() throws IOException {
+    /**
+     * Get the name and type of all Devil Fruits who appear in mangas or episodes.
+     * @throws IOException
+     */
+    public void getDevilFruits() throws IOException {
         def defFruitType;
         Document doc = Jsoup.connect(SITE_CRAWLER + "Devil_Fruit").timeout(1000000).get();
         // Get the content inside the table Devil Fruit, witch is the type and
@@ -115,9 +114,10 @@ class CrawlerJob {
         }
     }
 
-/**
- * Complete the information for each character crawled, with the information on onepiece.wikia, based in the infobox.
- */
+    /**
+     *
+     * Complete the information for each character crawled, with the information on onepiece.wikia, based in the infobox.
+     */
     public void completeCharactersInfo() {
         def i = 0;
         for (index in figures) {
@@ -168,56 +168,41 @@ class CrawlerJob {
             if (info.get("Birthday") != null) {
                 index.figBirthday = info.get("Birthday");
             }
-            if (info.get("Japanese VA") != null) {
-                index.figJapaneseVa = info.get("Japanese VA");
-            }
-            if (info.get("Romanized Name") != null) {
-                index.figRomanizedName = info.get("Romanized Name");
-            }
-            if (info.get("Japanese Name") != null) {
-                index.figJapaneseName = info.get("Japanese Name");
-            }
             if (info.get("Debut") != null) {
                 index.figDebut = info.get("Debut");
             }
             if (info.get("Residence") != null) {
                 index.figResidence = info.get("Residence");
             }
-            if (info.get("Epithet") != null) {
-                index.figEpithet = info.get("Epithet");
-            }
-            if (info.get("Height") != null) {
-                index.figHeight = info.get("Height");
-            }
 
             index.save();
             if (i % 10 == 0) {
-                log.info(i + " of " + figures.size() + " Characters Done!")
+                log.info("Crawling " + i + " of " + figures.size() + " figures done.")
             }
         }
     }
 
-/**
- * define races by character, humans are not redefined due more efficiency.
- * @throws IOException
- */
+    /**
+     * Define races by character, humans are not redefined for efficiency reasons.
+     * @throws IOException
+     */
     public void defineRace() throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:Characters_by_Type").timeout(1000000).get();
         def races = doc.select("a.CategoryTreeLabel");
         for (index in races) {
             if (index.text() != "Humans") {
-                defineCharacterRace(index.text())
+                crawlRace(index.text())
             }
         }
 
     }
 
-/**
- * Get characters races by specific race page.
- * @throws IOException
- * @param race
- */
-    private void defineCharacterRace(String race) throws IOException {
+    /**
+     * Crawl the race pages to get every associated figure.
+     * @throws IOException
+     * @param race The name of the race
+     */
+    private void crawlRace(String race) throws IOException {
         Document doc = Jsoup.connect(SITE_CRAWLER + "Category:" + race).timeout(1000000).get();
         def characters = doc.getElementById("mw-pages").select("a");
         for (index in characters) {
@@ -232,10 +217,7 @@ class CrawlerJob {
         }
     }
 
-/**
- * get all characters name
- */
-    public void getCharactersName() {
+    public void getCharacterNames() {
         figures = new ArrayList<Figure>()
         addCharacters("List_of_Canon_Characters")
         addCharacters("List_of_Non_Canon_Characters")
@@ -257,9 +239,9 @@ class CrawlerJob {
         }
     }
 
-/**
- * Get the Episodes and Chapters and the Characters who are in.
- */
+    /**
+     * Get the Episodes and Chapters and the Characters who are in.
+     */
     private void mapCharactersByApparition() {
         def r = true
         def i = 1
@@ -267,7 +249,7 @@ class CrawlerJob {
             r = getCharactersEpisode(SITE_CRAWLER + "Episode_" + i.toString(), i)
             i++
             if (i % 10 == 0) {
-                log.info("until " + i + "th Episode Done!")
+                log.info("Crawling until " + i + "th anime episode done.")
             }
         }
         r = true
@@ -276,108 +258,106 @@ class CrawlerJob {
             r = getCharactersManga(SITE_CRAWLER + "Chapter_" + i.toString(), i)
             i++
             if (i % 10 == 0) {
-                log.info("until " + i + "th Chapter Done!")
+                log.info("Crawling until " + i + "th manga chapter done.")
             }
         }
     }
 
-/**
- * saves in the database the episode's name and the characters of these episode.
- * @param URL
- * @param epNumber
- */
+    /**
+     * Saves in the database the episode's name and the characters of these episode.
+     * @param URL The URL to crawl
+     * @param epNumber The Number of the Episode
+     * @return false , if epNumber is the last episode, true otherwise
+     */
     public boolean getCharactersEpisode(String URL, int epNumber) {
         int attempt = 0
-        try {
-            Document doc = Jsoup.connect(URL).timeout(1000000).get()
+        while (attempt < 4) {
+            try {
+                Document doc = Jsoup.connect(URL).timeout(1000000).get()
 
-            def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save(flush: true, failOnError: true)
-            Figure fig;
-            def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
-            for (index in charTable) {
-                fig = new Figure()
-                fig.figName = index.select("a").text()
-                if (figures.contains(fig) != null) {
-                    def a = figures.indexOf(fig)
-                    if (a > 0) {
-                        fig = figures.get(a)
-                        episode.addToFigures(fig).save(failOnError: true)
+                def episode = new AnimeEpisode(aneName: doc.select("th").first().text(), aneNumber: epNumber).save(flush: true, failOnError: true)
+                Figure fig;
+                def charTable = doc.select("h2:contains(Characters in Order of Appearance)").first().nextElementSibling().select("li")
+                for (index in charTable) {
+                    fig = new Figure()
+                    fig.figName = index.select("a").text()
+                    if (figures.contains(fig) != null) {
+                        def a = figures.indexOf(fig)
+                        if (a > 0) {
+                            fig = figures.get(a)
+                            episode.addToFigures(fig).save(failOnError: true)
+                        }
                     }
                 }
+                return true
             }
-            return true
-        }
-        catch (NullPointerException ex) {
-            log.error("Fail to catch Episode number: " + epNumber + " on link: " + URL);
-            return true;
-        }
-        // catch if the web page doesn't exist, meaning that we already have the last episode
-        catch (HttpStatusException e) {
-            if (e.statusCode == 410 || e.statusCode == 404) {
-                log.info("stopped in: " + epNumber)
-                return false
-            } else {
-                attempt.next();
-                if (attempt < 4) {
-                    getCharactersEpisode(URL, epNumber)
+            catch (NullPointerException ex) {
+                log.error("Fail to catch Episode number: " + epNumber + " on link: " + URL, ex);
+                return true;
+            }
+            // catch if the web page doesn't exist, meaning that we already have the last episode
+            catch (HttpStatusException e) {
+                if (e.statusCode == 410 || e.statusCode == 404) {
+                    log.info("stopped in: " + epNumber)
+                    return false
+                } else {
+                    attempt.next()
                 }
             }
-        }
-        catch (SocketException ex) {
-            attempt.next();
-            if (attempt < 4) {
-                getCharactersEpisode(URL, epNumber)
+            catch (SocketException ex) {
+                log.error("SocketException while catching Episode number: " + epNumber + " on link: " + URL, ex)
+                attempt.next()
             }
         }
+        log.error("3rd attempt to crawl $epNumber on link: $java.net.URL failed, continuing with the next episode")
+        return true
     }
 
-/**
- * saves in the database the chapter's name and the characters on manga's chapter.
- * @param URL
- */
+    /**
+     * Saves the chapter's name and the characters on manga's chapter in the database.
+     * @param URL The URL of the chapter to crawl
+     */
     public boolean getCharactersManga(String URL, int chNumber) throws IOException {
         int attempt = 0;
-        try {
-            Document doc = Jsoup.connect(URL).timeout(1000000).get();
-            def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save(flush: true, failOnError: true)
-            def characters = doc.select("table.CharTable").select("li").select("a");
-            Figure fig;
-            for (element in characters) {
-                fig = new Figure()
-                fig.figName = element.text()
-                if (figures.contains(fig) != null) {
-                    def a = figures.indexOf(fig)
-                    if (a > 0) {
-                        fig = figures.get(a)
-                        chapter.addToFigures(fig).save(failOnError: true)
+        while (attempt < 4) {
+            try {
+                Document doc = Jsoup.connect(URL).timeout(1000000).get();
+                def chapter = new MangaEpisode(maeName: doc.select("th").first().text(), maeNumber: chNumber).save(flush: true, failOnError: true)
+                def characters = doc.select("table.CharTable").select("li").select("a");
+                Figure fig;
+                for (element in characters) {
+                    fig = new Figure()
+                    fig.figName = element.text()
+                    if (figures.contains(fig) != null) {
+                        def a = figures.indexOf(fig)
+                        if (a > 0) {
+                            fig = figures.get(a)
+                            chapter.addToFigures(fig).save(failOnError: true)
+                        }
                     }
                 }
+                return true
             }
-            return true
-
-        }
-        catch (NullPointerException ex) {
-            log.error("Fail to catch Episode number: " + chNumber + " on link: " + URL);
-            return true;
-        }
-        // catch if the web page doesn't exist, meaning that we already have the last chapter
-        catch (HttpStatusException e) {
-            if (e.statusCode == 410 || e.statusCode == 404) {
-                log.info("stopped in: " + chNumber)
-                return false
-            } else {
-                attempt.next();
-                if (attempt < 4) {
-                    getCharactersManga(URL, chNumber)
+            catch (NullPointerException ex) {
+                log.error("Fail to catch Episode number: " + chNumber + " on link: " + URL, ex);
+                return true;
+            }
+            // catch if the web page doesn't exist, meaning that we already have the last chapter
+            catch (HttpStatusException e) {
+                if (e.statusCode == 410 || e.statusCode == 404) {
+                    log.info("stopped in: " + chNumber)
+                    return false
+                } else {
+                    attempt.next()
                 }
             }
-        }
-        catch (SocketException ex) {
-            attempt.next();
-            if (attempt < 4) {
-                getCharactersManga(URL, chNumber)
+            catch (SocketException ex) {
+                log.error("SocketException while crawling Manga Chapter $chNumber on link: $java.net.URL", ex)
+                attempt.next()
             }
         }
+        log.error("3rd attempt to crawl $chNumber on link: $java.net.URL failed, continuing with the next episode")
+        return true
     }
 
 
@@ -405,27 +385,33 @@ class CrawlerJob {
 
     def execute() {
         def startTime = System.currentTimeSeconds()
-        log.info("Clearing database")
+        log.info("Clearing database...")
         def clearDatabaseSuccess = clearDatabase()
         if (clearDatabaseSuccess) {
-            log.info("Cleared database successfully")
+            log.info("Cleared database successfully.")
         } else {
             log.error("Could not clear database!")
         }
-        log.info("Crawler started");
-        getDevilFruit();
-        log.info("Devil Fruit Done!");
-        getGangs();
-        log.info("Gangs Done!")
-        getCharactersName();
-        log.info("Characters Name Done!");
-        mapCharactersByApparition();
-        log.info("Characters mapped Done!");
-        completeCharactersInfo();
-        log.info("Characters info Done");
-        defineRace();
-        log.info("Races defined!");
+        log.info("Crawler started.")
+        log.info("Crawling devil fruits...")
+        getDevilFruits()
+        log.info("Crawled devil fruits successfully.")
+        log.info("Crawling gangs...")
+        getGangs()
+        log.info("Crawled gangs successfully.")
+        log.info("Crawling figure names...")
+        getCharacterNames()
+        log.info("Crawled figure names successfully.")
+        log.info("Mapping figures...")
+        mapCharactersByApparition()
+        log.info("Mapped figures successfully.");
+        log.info("Crawling figure information...")
+        completeCharactersInfo()
+        log.info("Crawled figure information successfully.")
+        log.info("Crawling figure races...")
+        defineRace()
+        log.info("Crawled figure races successfully.")
         def totalTime = System.currentTimeSeconds() - startTime
-        log.info("Crawling Completed in " + totalTime.toString() + " seconds.");
+        log.info("Crawling Completed in " + totalTime.toString() + " seconds.")
     }
 }

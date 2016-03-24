@@ -11,13 +11,8 @@ class Figure {
     String figStatus
     String figOrigin
     String figBirthday
-    String figJapaneseVa
-    String figRomanizedName
-    String figJapaneseName
     String figDebut
     String figResidence
-    String figEpithet
-    String figHeight
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     String figPicture
     DevilFruit devilFruit
@@ -55,13 +50,8 @@ class Figure {
         pirate nullable: true
         figStatus nullable: true
         figBirthday nullable: true
-        figJapaneseVa nullable: true
-        figRomanizedName nullable: true
-        figJapaneseName nullable: true
         figDebut nullable: true
         figResidence nullable: true
-        figEpithet nullable: true
-        figHeight nullable: true
     }
 
     static Closure createWhereQuery(attribute) {
