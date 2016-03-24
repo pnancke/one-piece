@@ -10,6 +10,9 @@ class Figure {
     String figAge
     String figStatus
     String figOrigin
+    String figBirthday
+    String figDebut
+    String figResidence
     static hasMany = [mangaEpisodeAppearance: MangaEpisode, animeEpisodeAppearance: AnimeEpisode]
     String figPicture
     DevilFruit devilFruit
@@ -46,6 +49,9 @@ class Figure {
         marine nullable: true
         pirate nullable: true
         figStatus nullable: true
+        figBirthday nullable: true
+        figDebut nullable: true
+        figResidence nullable: true
     }
 
     static Closure createWhereQuery(attribute) {
@@ -112,12 +118,7 @@ class Figure {
             if (!Strings.isNullOrEmpty(figureName)) {
                 figures.add(findByFigNameIlike(figureName))
             }
-        } /*else if (entity.endsWith(' (Attribute)')) {
-            def attribute = entity.minus(' (Attribute)')
-            def criteria = createCriteria()
-            Closure query = createWhereQuery(attribute)
-            figures = criteria.list(query)
-        }*/
+        }
         return figures
     }
 

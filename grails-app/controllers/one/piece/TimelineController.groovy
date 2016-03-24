@@ -1,10 +1,10 @@
 package one.piece
 
+import com.google.common.base.Joiner
 import com.google.common.base.Strings
 import one.piece.util.FigureUtil
 import one.piece.util.HttpUtils
 import one.piece.util.TravizUtils
-import com.google.common.base.Joiner
 import org.grails.web.json.JSONObject
 
 class TimelineController {
@@ -89,6 +89,8 @@ class TimelineController {
                     data.put("Race", figure.figRace)
                 if (figure.figAge != null)
                     data.put("Age", figure.figAge)
+                if (figure.figBirthday != null)
+                    data.put("Birthday", figure.figBirthday)
                 if (figure.figStatus != null)
                     data.put("Status", figure.figStatus)
                 if (figure.figOrigin != null)
@@ -106,22 +108,15 @@ class TimelineController {
                     DevilFruit devf = figure.devilFruit
                     data.put("Devilfruit", devf.defName)
                 }
+                if (figure.figDebut != null)
+                    data.put("Debut", figure.figDebut)
+                if (figure.figResidence != null)
+                    data.put("Residence", figure.figResidence)
 
                 resultCount = 1;
 
             }
-        }/* else if (term.endsWith(' (Attribute)')) {
-            def attribute = term.minus(' (Attribute)')
-            def criteria = Figure.createCriteria()
-            Closure query = Figure.createWhereQuery(attribute)
-            def figures = criteria.list(query)
-            if (figures == null || figures.isEmpty()) {
-                successResponse = false
-            } else {
-                data.put("Attribute", figures)
-                resultCount = figures.size()
-            }
-        } */ else {
+        } else {
             successResponse = false
         }
 
