@@ -8,6 +8,9 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.TextNode
 import org.jsoup.select.Elements
+import groovy.sql.Sql
+import grails.util.Holders
+
 
 @Transactional
 class CrawlerJob {
@@ -19,7 +22,7 @@ class CrawlerJob {
     List<Figure> figures;
 
     static triggers = {
-        simple repeatInterval: 3600000, startDelay: 10000
+        simple repeatInterval: 86400000, startDelay: 5000
     }
 
     /**
@@ -378,9 +381,38 @@ class CrawlerJob {
     }
 
 
+    def boolean clearDatabase() {
+        def sql = Sql.newInstance(Holders.config.dataSource.url, Holders.config.dataSource.username,
+                Holders.config.dataSource.password, Holders.config.dataSource.driverClassName)
+        sql.execute "SET FOREIGN_KEY_CHECKS = 0;"
+        sql.execute "truncate ${Sql.expand("figure")}"
+        sql.execute "truncate ${Sql.expand("anime_episode")}"
+        sql.execute "truncate ${Sql.expand("manga_episode")}"
+        sql.execute "truncate ${Sql.expand("devil_fruit")}"
+        sql.execute "truncate ${Sql.expand("gang")}"
+        sql.execute "truncate ${Sql.expand("marine")}"
+        sql.execute "truncate ${Sql.expand("pirate")}"
+        sql.execute "SET FOREIGN_KEY_CHECKS = 1;"
+
+        return (Figure.count == 0
+                && Pirate.count == 0
+                && Marine.count == 0
+                && Gang.count == 0
+                && DevilFruit.count == 0
+                && MangaEpisode.count == 0
+                && AnimeEpisode.count == 0)
+    }
+
     def execute() {
-        def startTime = System.currentTimeMillis();
-        log.info("Process Start");
+        def startTime = System.currentTimeSeconds()
+        log.info("Clearing database")
+        def clearDatabaseSuccess = clearDatabase()
+        if (clearDatabaseSuccess) {
+            log.info("Cleared database successfully")
+        } else {
+            log.error("Could not clear database!")
+        }
+        log.info("Crawler started");
         getDevilFruit();
         log.info("Devil Fruit Done!");
         getGangs();
@@ -393,7 +425,7 @@ class CrawlerJob {
         log.info("Characters info Done");
         defineRace();
         log.info("Races defined!");
-        def totalTime = System.currentTimeMillis() - startTime
-        log.info("Crawling Completed in " + totalTime.toString() + "!");
+        def totalTime = System.currentTimeSeconds() - startTime
+        log.info("Crawling Completed in " + totalTime.toString() + " seconds.");
     }
 }
