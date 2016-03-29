@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringUtils
 
 class FigureController {
 
-    def scaffold = Figure
+    //def scaffold = Figure
 
     def index() {}
 
