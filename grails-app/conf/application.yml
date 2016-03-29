@@ -78,6 +78,8 @@ endpoints:
         unique-names: true
 
 dataSource:
+    # logSql: true
+    # formatSql: true
     pooled: true
     jmxExport: true
     driverClassName: com.mysql.jdbc.Driver
@@ -94,3 +96,8 @@ environments:
         dataSource:
             dbCreate: create-drop
             url: jdbc:mysql://localhost:3306/one_piece_test # ;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    production:
+        dataSource:
+            dbCreate: create-drop
+            url: jdbc:mysql://localhost:3306/one_piece_prod # ;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+
